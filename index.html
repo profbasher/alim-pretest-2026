@@ -1,3 +1,8 @@
+<!--
+  index.html
+  Fully responsive, mobile-friendly single-file web page.
+  Replace GAS_WEBAPP_URL with your deployed Apps Script web app URL.
+-->
 <!doctype html>
 <html lang="en">
 <head>
@@ -6,470 +11,387 @@
   <title>College Result Store</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-screen antialiased">
+<body class="bg-gray-50 text-gray-800">
   <div class="max-w-6xl mx-auto p-4">
-    <header class="flex items-center justify-between mb-4">
-      <h1 class="text-2xl font-semibold">College Result Store</h1>
-      <div class="w-64 relative">
-        <input id="searchInput" type="text" placeholder="Search by roll..." class="w-full pl-4 pr-10 py-2 rounded border focus:outline-none focus:ring" />
-        <button id="clearSearch" class="absolute right-1 top-1.5 p-1 rounded hidden" title="Clear search">
-          <!-- cross icon -->
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
+    <header class="flex items-center justify-between py-4">
+      <h1 class="text-2xl sm:text-3xl font-semibold">College Result Store</h1>
+      <div class="hidden sm:flex space-x-2">
+        <input id="searchInput" type="search" placeholder="Search by roll..." class="w-72 px-3 py-2 border rounded-md focus:outline-none" />
+        <button id="clearSearch" title="Clear" class="p-2 bg-red-50 rounded-md hidden">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
     </header>
 
-    <main>
-      <section class="mb-4">
-        <button id="openAdd" class="bg-blue-600 text-white px-4 py-2 rounded shadow">Add Result</button>
-        <button id="refreshBtn" class="ml-2 bg-gray-200 px-3 py-2 rounded">Refresh</button>
+    <main class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <!-- Form -->
+      <section class="lg:col-span-1 bg-white p-4 rounded-lg shadow-sm">
+        <h2 class="text-lg font-medium mb-2">Add / Edit Result</h2>
+        <form id="resultForm" class="space-y-3">
+          <input type="hidden" id="rowIndex" />
+          <div>
+            <label class="block text-sm">Name</label>
+            <input id="name" required class="w-full px-3 py-2 border rounded" />
+          </div>
+          <div>
+            <label class="block text-sm">Roll</label>
+            <input id="roll" required class="w-full px-3 py-2 border rounded" />
+          </div>
+
+          <!-- Subjects inputs (compact) -->
+          <div class="grid grid-cols-2 gap-2">
+            <div><label class="text-sm">Quran Mazid</label><input id="Quran Mazid" class="w-full px-2 py-1 border rounded" /></div>
+            <div><label class="text-sm">Hadis</label><input id="Hadis" class="w-full px-2 py-1 border rounded" /></div>
+            <div><label class="text-sm">Fikah 1</label><input id="Fikah 1" class="w-full px-2 py-1 border rounded" /></div>
+            <div><label class="text-sm">Fikah 2/ Physics 2</label><input id="Fikah 2/ Physics 2" class="w-full px-2 py-1 border rounded" /></div>
+            <div><label class="text-sm">Bengali 1</label><input id="Bengali 1" class="w-full px-2 py-1 border rounded" /></div>
+            <div><label class="text-sm">Bengali 2</label><input id="Bengali 2" class="w-full px-2 py-1 border rounded" /></div>
+            <div><label class="text-sm">English 1</label><input id="English 1" class="w-full px-2 py-1 border rounded" /></div>
+            <div><label class="text-sm">English 2</label><input id="English 2" class="w-full px-2 py-1 border rounded" /></div>
+            <div><label class="text-sm">Arabic 1</label><input id="Arabic 1" class="w-full px-2 py-1 border rounded" /></div>
+            <div><label class="text-sm">Arabic 2/Biology 2</label><input id="Arabic 2/Biology 2" class="w-full px-2 py-1 border rounded" /></div>
+            <div><label class="text-sm">ICT</label><input id="ICT" class="w-full px-2 py-1 border rounded" /></div>
+            <div><label class="text-sm">Camistry 2/History</label><input id="Camistry 2/History" class="w-full px-2 py-1 border rounded" /></div>
+            <div><label class="text-sm">Mantik</label><input id="Mantik" class="w-full px-2 py-1 border rounded" /></div>
+            <div><label class="text-sm">Civics/Higher Math</label><input id="Civics/Higher Math" class="w-full px-2 py-1 border rounded" /></div>
+          </div>
+
+          <div class="flex space-x-2 pt-2">
+            <button type="submit" id="saveBtn" class="flex-1 px-3 py-2 bg-blue-600 text-white rounded">Save</button>
+            <button type="button" id="resetBtn" class="flex-1 px-3 py-2 border rounded">Reset</button>
+          </div>
+        </form>
       </section>
 
-      <section id="tableWrap" class="overflow-x-auto bg-white rounded shadow">
-        <table id="resultsTable" class="min-w-full text-sm">
-          <thead class="bg-gray-100 sticky top-0">
-            <tr id="tableHead" class="text-left">
-              <!-- dynamic -->
-            </tr>
-          </thead>
-          <tbody id="tableBody">
-            <!-- dynamic -->
-          </tbody>
-        </table>
+      <!-- Table -->
+      <section class="lg:col-span-2 bg-white p-4 rounded-lg shadow-sm overflow-x-auto">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-medium">Results</h2>
+          <div class="flex items-center sm:hidden">
+            <input id="searchInputMobile" type="search" placeholder="Search by roll..." class="w-48 px-3 py-2 border rounded-md focus:outline-none" />
+            <button id="clearSearchMobile" title="Clear" class="p-2 bg-red-50 rounded-md hidden">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-auto">
+          <table id="resultsTable" class="min-w-full text-sm">
+            <thead class="bg-gray-100">
+              <tr id="tableHead" class="text-left">
+                <!-- head generated by JS -->
+              </tr>
+            </thead>
+            <tbody id="tableBody" class="divide-y">
+              <!-- rows generated by JS -->
+            </tbody>
+          </table>
+        </div>
       </section>
     </main>
   </div>
 
-  <!-- Modal -->
-  <div id="modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-white rounded-lg w-full max-w-3xl p-4 max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between mb-4">
-        <h2 id="modalTitle" class="text-lg font-semibold"></h2>
-        <button id="modalClose" class="text-gray-600">Close</button>
-      </div>
-      <form id="resultForm" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <input type="hidden" name="ID" />
-        <div>
-          <label class="block text-xs">Name</label>
-          <input name="Name" required class="w-full border rounded px-2 py-1" />
-        </div>
-        <div>
-          <label class="block text-xs">Roll</label>
-          <input name="Roll" required class="w-full border rounded px-2 py-1" />
-        </div>
+<script>
+/* ------------------------
+   Client-side JavaScript
+--------------------------- */
 
-        <!-- subjects (15) -->
-        <div>
-          <label class="block text-xs">Quran Mazid</label>
-          <input name="Quran Mazid" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" />
-        </div>
-        <div>
-          <label class="block text-xs">Hadis</label>
-          <input name="Hadis" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" />
-        </div>
-        <div>
-          <label class="block text-xs">Fikah 1</label>
-          <input name="Fikah 1" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" />
-        </div>
-        <div>
-          <label class="block text-xs">Fikah 2/ Physics 2</label>
-          <input name="Fikah 2/Physics 2" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" />
-        </div>
-        <div>
-          <label class="block text-xs">Bengali 1</label>
-          <input name="Bengali 1" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" />
-        </div>
-        <div>
-          <label class="block text-xs">Bengali 2</label>
-          <input name="Bengali 2" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" />
-        </div>
-        <div>
-          <label class="block text-xs">English 1</label>
-          <input name="English 1" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" />
-        </div>
-        <div>
-          <label class="block text-xs">English 2</label>
-          <input name="English 2" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" />
-        </div>
-        <div>
-          <label class="block text-xs">Arabic 1</label>
-          <input name="Arabic 1" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" />
-        </div>
-        <div>
-          <label class="block text-xs">Arabic 2/Biology 2</label>
-          <input name="Arabic 2/Biology 2" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" />
-        </div>
-        <div>
-          <label class="block text-xs">ICT</label>
-          <input name="ICT" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" />
-        </div>
-        <div>
-          <label class="block text-xs">Camistry 2/History</label>
-          <input name="Camistry 2/History" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" />
-        </div>
-        <div>
-          <label class="block text-xs">Mantik</label>
-          <input name="Mantik" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" />
-        </div>
-        <div>
-          <label class="block text-xs">Civics/Higher Math</label>
-          <input name="Civics/Higher Math" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" />
-        </div>
+const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw37Phap-Q-qeS5j_23zqb2Yeutpd6SGG7SRjnsUy7DrnJq8PmJoibGEDx00SxvCUD_/exec"; // <-- replace with your deployed Apps Script web app URL
 
-        <div class="md:col-span-2 flex items-center justify-end gap-2 pt-2">
-          <button type="button" id="deleteBtn" class="hidden bg-red-600 text-white px-3 py-1 rounded">Delete</button>
-          <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Save</button>
-        </div>
-      </form>
-    </div>
-  </div>
+// Headers must match the Google Sheet first row exactly (case-sensitive)
+const SHEET_HEADERS = [
+  "name","roll",
+  "Quran Mazid","Hadis","Fikah 1","Fikah 2/ Physics 2","Bengali 1","Bengali 2",
+  "English 1","English 2","Arabic 1","Arabic 2/Biology 2","ICT","Camistry 2/History",
+  "Mantik","Civics/Higher Math",
+  "Total","Grade","Point","Merit"
+];
 
-  <template id="rowTemplate">
-    <tr class="border-b">
-      <!-- dynamic cells -->
-    </tr>
-  </template>
+let state = { rows: [] };
 
-  <script>
-  // ========== CONFIG ==========
-  // Replace with your deployed Google Apps Script web app URL
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbyH22J2IIonZRkrto2KDQlkKxwMRyO2C6mXR0bMrzOpviBPtJXxl022g1NzjpLQ6Sx1/exec';
+const gradeScale = (num) => {
+  num = Number(num);
+  if (isNaN(num)) return {grade:"F", point:0};
+  if (num >= 80) return {grade:"A+", point:5.0};
+  if (num >= 70) return {grade:"A", point:4.0};
+  if (num >= 60) return {grade:"A-", point:3.5};
+  if (num >= 50) return {grade:"B", point:3.0};
+  if (num >= 40) return {grade:"C", point:2.0};
+  if (num >= 33) return {grade:"D", point:1.0};
+  return {grade:"F", point:0.0};
+};
 
-  // headers sequence must match the Google Sheet first row
-  const HEADERS = ["Name","Roll","Quran Mazid","Hadis","Fikah 1","Fikah 2/Physics 2","Bengali 1","Bengali 2","English 1","English 2","Arabic 1","Arabic 2/Biology 2","ICT","Camistry 2/History","Mantik","Civics/Higher Math","Total Percentage","Final Grade","Final GPA","Merit","ID","Timestamp"];
+function calculateResult(record) {
+  // Subjects are the ones from index 2 to 15 in SHEET_HEADERS
+  const subjectKeys = SHEET_HEADERS.slice(2, 16);
+  let totalMarks = 0;
+  let countSubjects = 0;
+  let totalPoints = 0;
+  subjectKeys.forEach(k => {
+    const v = Number(record[k]) || 0;
+    totalMarks += v;
+    countSubjects++;
+    const gp = gradeScale(v).point;
+    totalPoints += gp;
+  });
+  const averagePercent = countSubjects ? (totalMarks / countSubjects) : 0;
+  const finalGradeObj = gradeScale(averagePercent);
+  const finalPoint = countSubjects ? (totalPoints / countSubjects) : 0;
+  record["Total"] = Math.round(averagePercent * 100) / 100;
+  record["Grade"] = finalGradeObj.grade;
+  record["Point"] = Math.round(finalPoint * 100) / 100;
+  record["Merit"] = totalMarks; // storing sum of marks as merit (can be adjusted)
+  return record;
+}
 
-  // client-side grade conversion to compute preview
-  function pctToLetter(p){
-    p = Number(p);
-    if (p >= 80) return 'A+';
-    if (p >= 70) return 'A';
-    if (p >= 60) return 'A-';
-    if (p >= 50) return 'B';
-    if (p >= 40) return 'C';
-    if (p >= 33) return 'D';
-    return 'F';
-  }
-  function letterToPoint(letter){
-    switch(letter){
-      case 'A+': return 5.0;
-      case 'A': return 4.0;
-      case 'A-': return 3.5;
-      case 'B': return 3.0;
-      case 'C': return 2.0;
-      case 'D': return 1.0;
-      default: return 0.0;
-    }
-  }
+/* --- DOM refs --- */
+const tableHead = document.getElementById("tableHead");
+const tableBody = document.getElementById("tableBody");
+const resultForm = document.getElementById("resultForm");
+const saveBtn = document.getElementById("saveBtn");
+const resetBtn = document.getElementById("resetBtn");
+const searchInput = document.getElementById("searchInput");
+const searchInputMobile = document.getElementById("searchInputMobile");
+const clearSearch = document.getElementById("clearSearch");
+const clearSearchMobile = document.getElementById("clearSearchMobile");
 
-  // ========== DOM ==========
-  const searchInput = document.getElementById('searchInput');
-  const clearSearchBtn = document.getElementById('clearSearch');
-  const tableHead = document.getElementById('tableHead');
-  const tableBody = document.getElementById('tableBody');
-  const openAddBtn = document.getElementById('openAdd');
-  const modal = document.getElementById('modal');
-  const modalTitle = document.getElementById('modalTitle');
-  const modalClose = document.getElementById('modalClose');
-  const resultForm = document.getElementById('resultForm');
-  const deleteBtn = document.getElementById('deleteBtn');
-  const refreshBtn = document.getElementById('refreshBtn');
+/* Build table header */
+function buildTableHeader() {
+  tableHead.innerHTML = "";
+  SHEET_HEADERS.forEach(h => {
+    const th = document.createElement("th");
+    th.className = "px-3 py-2";
+    th.textContent = h;
+    tableHead.appendChild(th);
+  });
+  const actionTh = document.createElement("th");
+  actionTh.className = "px-3 py-2";
+  actionTh.textContent = "Actions";
+  tableHead.appendChild(actionTh);
+}
 
-  // build table head
-  function buildHead(){
-    tableHead.innerHTML = '';
-    const colsToShow = HEADERS.slice(0, 16); // show subjects and Name, Roll
-    colsToShow.forEach(h => {
-      const th = document.createElement('th');
-      th.className = 'px-3 py-2';
-      th.innerText = h;
-      tableHead.appendChild(th);
+/* Render rows */
+function renderRows(rows) {
+  tableBody.innerHTML = "";
+  rows.forEach(r => {
+    const tr = document.createElement("tr");
+    SHEET_HEADERS.forEach(h => {
+      const td = document.createElement("td");
+      td.className = "px-3 py-2 align-top";
+      td.textContent = r[h] !== undefined ? r[h] : "";
+      tr.appendChild(td);
     });
-    ['Total','Grade','Point','Merit','Actions'].forEach(h => {
-      const th = document.createElement('th');
-      th.className = 'px-3 py-2';
-      th.innerText = h;
-      tableHead.appendChild(th);
-    });
-  }
+    const tdAction = document.createElement("td");
+    tdAction.className = "px-3 py-2 space-x-1";
 
-  // fetch all records
-  async function fetchAll(){
-    const res = await fetch(GAS_URL + '?action=getAll');
+    const viewBtn = createIconButton("View", () => onView(r), "bg-green-50 text-green-700");
+    const editBtn = createIconButton("Edit", () => onEdit(r), "bg-yellow-50 text-yellow-700");
+    const delBtn = createIconButton("Delete", () => onDelete(r), "bg-red-50 text-red-700");
+    const printBtn = createIconButton("Print", () => onPrint(r), "bg-blue-50 text-blue-700");
+
+    tdAction.appendChild(viewBtn);
+    tdAction.appendChild(editBtn);
+    tdAction.appendChild(delBtn);
+    tdAction.appendChild(printBtn);
+    tr.appendChild(tdAction);
+
+    tableBody.appendChild(tr);
+  });
+}
+
+function createIconButton(title, cb, extraClass="") {
+  const btn = document.createElement("button");
+  btn.title = title;
+  btn.className = `px-2 py-1 mr-1 rounded text-xs ${extraClass}`;
+  btn.textContent = title;
+  btn.addEventListener("click", cb);
+  return btn;
+}
+
+/* Fetch all rows from backend */
+async function fetchAll() {
+  try {
+    const res = await fetch(GAS_WEBAPP_URL + "?action=get-all");
     const json = await res.json();
-    if (json.status === 'ok'){
-      return json.data;
-    }
-    return [];
-  }
-
-  // fetch by roll
-  async function fetchByRoll(roll){
-    const res = await fetch(GAS_URL + '?action=getByRoll&roll=' + encodeURIComponent(roll));
-    const json = await res.json();
-    return json.status === 'ok' ? json.data : [];
-  }
-
-  // render table rows
-  function renderRows(data){
-    tableBody.innerHTML = '';
-    data.forEach(row => {
-      const tr = document.createElement('tr');
-      tr.className = 'border-b hover:bg-gray-50';
-      // display first 16 headers: Name, Roll, then subjects
-      HEADERS.slice(0,16).forEach(h => {
-        const td = document.createElement('td');
-        td.className = 'px-3 py-2';
-        td.innerText = row[h] || '';
-        tr.appendChild(td);
+    if (json.status === "ok") {
+      state.rows = json.data.map(r => {
+        // ensure keys exist for all headers
+        SHEET_HEADERS.forEach(h => { if (!(h in r)) r[h] = ""; });
+        return r;
       });
-      const totalTd = document.createElement('td'); totalTd.className='px-3 py-2'; totalTd.innerText = row['Total Percentage'] || '';
-      const gradeTd = document.createElement('td'); gradeTd.className='px-3 py-2'; gradeTd.innerText = row['Final Grade'] || '';
-      const pointTd = document.createElement('td'); pointTd.className='px-3 py-2'; pointTd.innerText = row['Final GPA'] || '';
-      const meritTd = document.createElement('td'); meritTd.className='px-3 py-2'; meritTd.innerText = row['Merit'] || '';
-      tr.appendChild(totalTd);
-      tr.appendChild(gradeTd);
-      tr.appendChild(pointTd);
-      tr.appendChild(meritTd);
-
-      // actions
-      const actionsTd = document.createElement('td'); actionsTd.className='px-3 py-2';
-      const viewBtn = document.createElement('button');
-      viewBtn.className = 'text-sm px-2 py-1 mr-1 border rounded';
-      viewBtn.innerText = 'View';
-      viewBtn.onclick = () => openView(row);
-
-      const editBtn = document.createElement('button');
-      editBtn.className = 'text-sm px-2 py-1 mr-1 border rounded bg-yellow-50';
-      editBtn.innerText = 'Edit';
-      editBtn.onclick = () => openEdit(row);
-
-      const delBtn = document.createElement('button');
-      delBtn.className = 'text-sm px-2 py-1 mr-1 border rounded bg-red-50';
-      delBtn.innerText = 'Delete';
-      delBtn.onclick = () => removeRow(row);
-
-      const printBtn = document.createElement('button');
-      printBtn.className = 'text-sm px-2 py-1 border rounded bg-gray-50';
-      printBtn.innerText = 'Print';
-      printBtn.onclick = () => printRow(row);
-
-      actionsTd.appendChild(viewBtn);
-      actionsTd.appendChild(editBtn);
-      actionsTd.appendChild(delBtn);
-      actionsTd.appendChild(printBtn);
-      tr.appendChild(actionsTd);
-
-      tableBody.appendChild(tr);
-    });
+      renderRows(state.rows);
+    }
+  } catch (err) {
+    console.error(err);
   }
+}
 
-  // open modal for add
-  function openAdd(){
-    modalTitle.innerText = 'Add Result';
-    resultForm.reset();
-    resultForm.querySelector('[name=ID]').value = '';
-    deleteBtn.classList.add('hidden');
-    modal.classList.remove('hidden');
+/* Form handlers */
+resultForm.addEventListener("submit", async function(e) {
+  e.preventDefault();
+  const rec = {};
+  SHEET_HEADERS.forEach(h => {
+    rec[h] = document.getElementById(h) ? document.getElementById(h).value.trim() : "";
+  });
+  // name & roll
+  rec["name"] = document.getElementById("name").value.trim();
+  rec["roll"] = document.getElementById("roll").value.trim();
+
+  calculateResult(rec);
+
+  const rowIndexVal = document.getElementById("rowIndex").value;
+  if (rowIndexVal) {
+    // update
+    await postAction("update", { rowIndex: parseInt(rowIndexVal, 10), record: rec });
+    // update local state optimistically
+    const idx = state.rows.findIndex(r => r._rowIndex == rowIndexVal);
+    if (idx >= 0) {
+      state.rows[idx] = Object.assign({}, rec, {_rowIndex: parseInt(rowIndexVal,10)});
+    }
+  } else {
+    // insert
+    await postAction("new-entry", { record: rec });
+    // reload to get rowIndex
+    await fetchAll();
   }
+  resetForm();
+  renderRows(state.rows);
+});
 
-  // open for view (readonly)
-  function openView(row){
-    modalTitle.innerText = 'View Result';
-    fillForm(row, true);
-    deleteBtn.classList.add('hidden');
-    modal.classList.remove('hidden');
-  }
+/* Reset form */
+function resetForm() {
+  resultForm.reset();
+  document.getElementById("rowIndex").value = "";
+  window.scrollTo({top:0, behavior:"smooth"});
+}
 
-  // open for edit
-  function openEdit(row){
-    modalTitle.innerText = 'Edit Result';
-    fillForm(row, false);
-    deleteBtn.classList.remove('hidden');
-    modal.classList.remove('hidden');
-  }
+/* Edit */
+function onEdit(r) {
+  // populate form
+  SHEET_HEADERS.forEach(h => {
+    const el = document.getElementById(h);
+    if (el) el.value = r[h] !== undefined ? r[h] : "";
+  });
+  document.getElementById("name").value = r["name"] || "";
+  document.getElementById("roll").value = r["roll"] || "";
+  document.getElementById("rowIndex").value = r._rowIndex || "";
+  window.scrollTo({top:0, behavior:"smooth"});
+}
 
-  function fillForm(row, readonly){
-    resultForm.reset();
-    HEADERS.forEach(h => {
-      const el = resultForm.querySelector('[name="' + h + '"]');
-      if (el) el.value = row[h] || '';
-    });
-    // special: some header names contain slashes in the sheet, but form fields used slightly different name "Fikah 2/Physics 2"
-    const specialMap = {
-      'Fikah 2/Physics 2': row['Fikah 2/Physics 2'] || row['Fikah 2/ Physics 2'] || '',
-      'Arabic 2/Biology 2': row['Arabic 2/Biology 2'] || row['Arabic 2/Biology 2'] || '',
-      'Camistry 2/History': row['Camistry 2/History'] || row['Camistry 2/History'] || ''
-    };
-    Object.keys(specialMap).forEach(k => {
-      const el = resultForm.querySelector('[name="' + k + '"]');
-      if (el) el.value = specialMap[k];
-    });
-    // readonly toggle
-    Array.from(resultForm.elements).forEach(it => it.disabled = readonly && it.name !== 'ID');
-  }
+/* View */
+function onView(r) {
+  const win = window.open("", "_blank", "width=800,height=600");
+  const html = buildPrintHTML(r, {forPrint:false});
+  win.document.write(html);
+  win.document.close();
+}
 
-  // print single record
-  function printRow(row){
-    const win = window.open('', '_blank');
-    const html = `
-    <html><head><title>Print - ${row['Name']||''}</title>
+/* Print */
+function onPrint(r) {
+  const win = window.open("", "_blank", "width=800,height=600");
+  const html = buildPrintHTML(r, {forPrint:true});
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(()=>{ win.print(); }, 300);
+}
+
+/* Delete */
+async function onDelete(r) {
+  if (!confirm("Delete this record?")) return;
+  await postAction("delete", { rowIndex: r._rowIndex });
+  // remove locally
+  state.rows = state.rows.filter(x => x._rowIndex !== r._rowIndex);
+  renderRows(state.rows);
+}
+
+/* Build printable HTML */
+function buildPrintHTML(r, opts={forPrint:false}) {
+  const subjectKeys = SHEET_HEADERS.slice(2,16);
+  let rowsHtml = "";
+  subjectKeys.forEach(k => {
+    rowsHtml += `<tr><td style="padding:6px;border:1px solid #ddd">${k}</td><td style="padding:6px;border:1px solid #ddd">${r[k]||""}</td></tr>`;
+  });
+  const html = `
+  <html>
+  <head>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <style>body{font-family:Arial;padding:20px}table{border-collapse:collapse;width:100%}td,th{padding:8px;border:1px solid #ddd}</style>
-    </head><body>
-    <h2>Result - ${row['Name']||''}</h2>
-    <table>
-      <tr><th>Name</th><td>${row['Name']||''}</td><th>Roll</th><td>${row['Roll']||''}</td></tr>
-      ${HEADERS.slice(2,17).map(s => `<tr><th>${s}</th><td>${row[s]||''}</td></tr>`).join('')}
-      <tr><th>Total Percentage</th><td>${row['Total Percentage']||''}</td><th>Final Grade</th><td>${row['Final Grade']||''}</td></tr>
-      <tr><th>Final GPA</th><td>${row['Final GPA']||''}</td><th>Merit</th><td>${row['Merit']||''}</td></tr>
-    </table>
-    <script>window.print();</script>
-    </body></html>
-    `;
-    win.document.write(html);
-    win.document.close();
-  }
+    <title>Result - ${r.name || ""}</title>
+    <style>
+      body{font-family:system-ui,Segoe UI,Roboto,Arial; padding:20px}
+      .card{max-width:750px;margin:0 auto}
+      table{border-collapse:collapse;width:100%}
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h2>Result</h2>
+      <p><strong>Name:</strong> ${r.name || ""} &nbsp;&nbsp; <strong>Roll:</strong> ${r.roll || ""}</p>
+      <table>
+        <thead><tr><th style="text-align:left;padding:6px;border:1px solid #ddd">Subject</th><th style="text-align:left;padding:6px;border:1px solid #ddd">Marks</th></tr></thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+      <p><strong>Total (avg %):</strong> ${r["Total"] || ""} &nbsp; <strong>Grade:</strong> ${r["Grade"] || ""} &nbsp; <strong>Point:</strong> ${r["Point"] || ""} &nbsp; <strong>Merit:</strong> ${r["Merit"] || ""}</p>
+    </div>
+  </body>
+  </html>`;
+  return html;
+}
 
-  // delete
-  async function removeRow(row){
-    if (!confirm('Delete record for ' + (row['Name']||'') + '?')) return;
-    const res = await fetch(GAS_URL + '?action=delete', {
-      method: 'POST',
-      body: JSON.stringify({ID: row['ID']})
+/* POST to backend */
+async function postAction(action, payload) {
+  try {
+    const body = { action, ...payload };
+    const res = await fetch(GAS_WEBAPP_URL, {
+      method: "POST",
+      headers: { "Content-Type":"application/json" },
+      body: JSON.stringify(body)
     });
-    const json = await res.json();
-    if (json.status === 'ok'){
-      await refresh();
-      closeModal();
-    } else {
-      alert('Delete failed');
-    }
+    return await res.json();
+  } catch (err) {
+    console.error(err);
   }
+}
 
-  // form submit for add/update
-  resultForm.addEventListener('submit', async (ev) => {
-    ev.preventDefault();
-    const data = {};
-    Array.from(resultForm.elements).forEach(el => {
-      if (!el.name) return;
-      data[el.name] = el.value;
-    });
-    // normalize some keys: map form field names to sheet header names if necessary
-    // compute action
-    const action = data.ID ? 'update' : 'add';
-    // map field names that include slash to sheet header names exactly
-    if (data['Fikah 2/Physics 2'] !== undefined){
-      data['Fikah 2/ Physics 2'] = data['Fikah 2/Physics 2'];
-      delete data['Fikah 2/Physics 2'];
-    }
-    if (data['Arabic 2/Biology 2'] !== undefined){
-      data['Arabic 2/Biology 2'] = data['Arabic 2/Biology 2'];
-    }
-    if (data['Camistry 2/History'] !== undefined){
-      data['Camistry 2/History'] = data['Camistry 2/History'];
-    }
-
-    const res = await fetch(GAS_URL + '?action=' + action, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(data)
-    });
-    const json = await res.json();
-    if (json.status === 'ok'){
-      await refresh();
-      closeModal();
-    } else {
-      alert('Save failed: ' + (json.message || ''));
-    }
-  });
-
-  deleteBtn.addEventListener('click', async () => {
-    const id = resultForm.querySelector('[name=ID]').value;
-    if (!id) return;
-    if (!confirm('Delete this record?')) return;
-    const res = await fetch(GAS_URL + '?action=delete', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ID: id})
-    });
-    const json = await res.json();
-    if (json.status === 'ok'){
-      await refresh();
-      closeModal();
-    } else {
-      alert('Delete failed');
-    }
-  });
-
-  // modal controls
-  openAddBtn.addEventListener('click', openAdd);
-  modalClose.addEventListener('click', closeModal);
-  function closeModal(){ modal.classList.add('hidden'); }
-
-  // search input live search (by roll)
-  let currentData = [];
-  searchInput.addEventListener('input', async (e) => {
-    const v = e.target.value.trim();
-    if (v.length){
-      clearSearchBtn.classList.remove('hidden');
-      // search by roll exact match or contains
-      const filtered = currentData.filter(r => (r['Roll']||'').toString().includes(v));
-      renderRows(filtered);
-    } else {
-      clearSearchBtn.classList.add('hidden');
-      renderRows(currentData);
-    }
-  });
-  clearSearchBtn.addEventListener('click', () => {
-    searchInput.value = '';
-    clearSearchBtn.classList.add('hidden');
-    renderRows(currentData);
-  });
-
-  // refresh
-  refreshBtn.addEventListener('click', refresh);
-
-  // open edit helper
-  function openEdit(row){
-    openEditInternal(row);
+/* Search (by roll) */
+function applySearch(term) {
+  const t = String(term || "").trim().toLowerCase();
+  if (!t) {
+    renderRows(state.rows);
+    return;
   }
-  function openEditInternal(row){
-    modalTitle.innerText = 'Edit Result';
-    fillForm(row, false);
-    deleteBtn.classList.remove('hidden');
-    modal.classList.remove('hidden');
-  }
+  const filtered = state.rows.filter(r => String(r.roll || "").toLowerCase().includes(t));
+  renderRows(filtered);
+}
 
-  // view helper
-  function openView(row){
-    modalTitle.innerText = 'View Result';
-    fillForm(row, true);
-    deleteBtn.classList.add('hidden');
-    modal.classList.remove('hidden');
-  }
+/* Wire up search inputs (no button) */
+searchInput.addEventListener("input", (e) => {
+  const v = e.target.value;
+  applySearch(v);
+  clearSearch.style.display = v ? "inline-block" : "none";
+});
+searchInputMobile.addEventListener("input", (e) => {
+  const v = e.target.value;
+  applySearch(v);
+  clearSearchMobile.style.display = v ? "inline-block" : "none";
+});
+clearSearch.addEventListener("click", () => {
+  searchInput.value = "";
+  applySearch("");
+  clearSearch.style.display = "none";
+});
+clearSearchMobile.addEventListener("click", () => {
+  searchInputMobile.value = "";
+  applySearch("");
+  clearSearchMobile.style.display = "none";
+});
 
-  // initial load
-  async function refresh(){
-    try {
-      const data = await fetchAll();
-      // compute possible missing fields and normalize keys
-      currentData = data.map(d => {
-        // normalize keys with slash names for consistent client usage
-        if (d['Fikah 2/ Physics 2'] !== undefined && d['Fikah 2/Physics 2'] === undefined) d['Fikah 2/Physics 2'] = d['Fikah 2/ Physics 2'];
-        return d;
-      });
-      renderRows(currentData);
-    } catch (err){
-      console.error(err);
-      alert('Failed to load data. Check GAS_URL and deployment.');
-    }
-  }
+/* reset button */
+resetBtn.addEventListener("click", resetForm);
 
-  // build UI & run
-  buildHead();
-  refresh();
-  </script>
+/* Initial */
+buildTableHeader();
+fetchAll();
+</script>
 </body>
 </html>
