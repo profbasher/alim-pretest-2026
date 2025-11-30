@@ -1,437 +1,350 @@
-<!-- index.html -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>College Result Store</title>
+
+  <!-- Tailwind CDN for quick styling -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* small print styles for printing */
-    @media print {
-      body * { visibility: hidden; }
-      #printable, #printable * { visibility: visible; }
-      #printable { position: absolute; left: 0; top: 0; width: 100%; }
-    }
+    /* small helper for input icons */
+    .icon-input { padding-right: 2.5rem; }
   </style>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="bg-slate-50 min-h-screen font-inter">
   <div class="max-w-6xl mx-auto p-4">
-    <header class="mb-6">
-      <h1 class="text-2xl md:text-3xl font-bold text-slate-800">College Result Store</h1>
+    <header class="flex items-center justify-between mb-4">
+      <h1 class="text-2xl sm:text-3xl font-semibold">College Result Store</h1>
+      <div class="text-sm text-slate-600">Responsive • Search by Roll • Print</div>
     </header>
 
-    <!-- API URL placeholder -->
-    <script>
-      const API_URL = 'https://script.google.com/macros/s/AKfycbyN0akGJgBiz_dGJAAjEb4GzKZ7FjFGHTP8pPrrukPaWDcZ1O8AKEqwi9zDqm4Qv7ij/exec'; // replace with your Apps Script web app URL (deployed "Anyone, even anonymous")
-    </script>
+    <!-- copyable header string -->
+    <section class="mb-4 bg-white shadow rounded p-4">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <div class="text-xs text-slate-500 mb-1">Google Sheet header (first row) — copy this into row 1 of "Sheet1"</div>
+          <textarea id="sheetHeaders" readonly class="w-full text-xs p-2 rounded border border-slate-200" rows="2">name,roll,quran_mazid,hadis,fikah_1,fikah_2_or_physics_2,bengali_1,bengali_2,english_1,english_2,arabic_1,arabic_2_or_biology_2,ict,camistry_2_or_history,mantik,civics_or_higher_math,total,percentage,gpa,letter_grade,created_at,updated_at</textarea>
+        </div>
+        <div class="flex flex-col items-end gap-2">
+          <button id="copyHeadersBtn" class="px-3 py-2 bg-indigo-600 text-white rounded shadow-sm text-sm">Copy code</button>
+          <div class="text-xs text-slate-500">Paste into your Sheet → Sheet1 row 1</div>
+        </div>
+      </div>
+    </section>
 
-    <!-- form -->
-    <section class="bg-white rounded-lg shadow p-4 mb-6">
-      <form id="entryForm" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="col-span-1 md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <input required id="name" name="name" placeholder="Student Name" class="p-3 border rounded" />
-          <input required id="roll" name="roll" placeholder="Roll (unique)" class="p-3 border rounded" />
-          <div class="flex items-center space-x-2">
-            <button id="saveBtn" type="submit" class="px-4 py-2 bg-sky-600 text-white rounded">Save</button>
-            <button id="clearBtn" type="button" class="px-4 py-2 border rounded">Clear</button>
-            <button id="newBlankBtn" type="button" class="px-4 py-2 border rounded">New Blank</button>
+    <main class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <!-- Form -->
+      <form id="resultForm" class="lg:col-span-1 bg-white p-4 rounded shadow space-y-3">
+        <h2 class="font-medium">Add / Edit Result</h2>
+
+        <div>
+          <label class="block text-sm text-slate-700">Name</label>
+          <input id="name" required class="w-full p-2 rounded border border-slate-200" />
+        </div>
+
+        <div>
+          <label class="block text-sm text-slate-700">Roll (unique)</label>
+          <input id="roll" required class="w-full p-2 rounded border border-slate-200" />
+        </div>
+
+        <div class="text-sm text-slate-600">Enter marks (0 - 100)</div>
+
+        <div id="subjectsGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <!-- We'll dynamically populate subjects via JS -->
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Save</button>
+          <button type="button" id="resetBtn" class="px-3 py-2 border rounded">Reset</button>
+          <div id="formMsg" class="text-sm text-red-600"></div>
+        </div>
+
+        <div class="text-xs text-slate-500">
+          GPA calculation: average of grade points across subjects. Grades mapping: A+ (80-100) = 5.0, A (70-79)=4.0, A- (60-69)=3.5, B (50-59)=3.0, C (40-49)=2.0, D (33-39)=1.0, F (0-32)=0.0.
+        </div>
+      </form>
+
+      <!-- Search & Actions -->
+      <section class="lg:col-span-2 bg-white p-4 rounded shadow">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div class="relative w-full sm:w-1/2">
+            <input id="search" placeholder="Search by roll..." class="w-full p-2 pl-3 pr-10 rounded border border-slate-200 icon-input" />
+            <button id="clearSearch" title="Clear" class="absolute right-1 top-1/2 -translate-y-1/2 p-1.5 rounded-full hover:bg-slate-100">
+              <!-- Cross icon -->
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button id="refreshBtn" class="px-3 py-2 border rounded text-sm">Refresh</button>
+            <div id="scriptUrlBlock" class="text-xs text-slate-500">Script URL: <input id="scriptUrl" placeholder="Paste your Apps Script web app URL here" class="ml-2 text-xs border rounded p-1 w-80"/></div>
           </div>
         </div>
 
-        <!-- Subjects (list as specified) -->
-        <script>
-          const SUBJECTS = [
-            'quran_mazid','hadis','fikah_1','fikah_2_physics_2',
-            'bengali_1','bengali_2','english_1','english_2',
-            'arabic_1','arabic_2_biology_2','ict','camistry_2_history',
-            'mantik','civics_higher_math'
-          ];
-        </script>
-
-        <div id="subjectsGrid" class="col-span-1 md:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-3"></div>
-
-        <div class="col-span-1 md:col-span-3 flex justify-end space-x-2 mt-2">
-          <div class="text-sm text-slate-600">Scale: 0-100%</div>
+        <div class="mt-4 overflow-x-auto">
+          <table id="resultsTable" class="min-w-full text-sm">
+            <thead class="bg-slate-100">
+              <tr id="tableHead"></tr>
+            </thead>
+            <tbody id="tableBody" class="divide-y"></tbody>
+          </table>
         </div>
-      </form>
-    </section>
-
-    <!-- Search -->
-    <section class="mb-4">
-      <div class="relative max-w-md">
-        <input id="search" placeholder="Search by roll..." class="w-full p-3 pl-10 pr-10 border rounded" />
-        <div class="absolute left-3 top-3 text-slate-400">
-          <!-- search icon -->
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1116 4.5a7.5 7.5 0 010 12.15z" />
-          </svg>
-        </div>
-        <button id="clearSearch" class="absolute right-2 top-2 p-1 rounded hidden" title="Clear">
-          <!-- cross icon -->
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-500" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-          </svg>
-        </button>
-      </div>
-    </section>
-
-    <!-- headers with copy code option -->
-    <section class="mb-4">
-      <div class="bg-white p-3 rounded shadow">
-        <div class="flex flex-wrap gap-2">
-          <!-- dynamic header chips -->
-          <div id="headerChips" class="flex flex-wrap gap-2"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- results table -->
-    <section>
-      <div class="overflow-auto bg-white rounded shadow">
-        <table id="resultsTable" class="min-w-full divide-y">
-          <thead class="bg-slate-100 sticky top-0">
-            <tr id="theadRow"></tr>
-          </thead>
-          <tbody id="tbody" class="divide-y"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- Templates / print container -->
-    <div id="printable" class="hidden"></div>
-
+      </section>
+    </main>
   </div>
 
-  <script>
-    // helpers: grade mapping
-    function percentToLetter(p) {
-      if (p >= 80) return 'A+';
-      if (p >= 70) return 'A';
-      if (p >= 60) return 'A-';
-      if (p >= 50) return 'B';
-      if (p >= 40) return 'C';
-      if (p >= 33) return 'D';
-      return 'F';
-    }
-    function letterToPoint(letter) {
-      switch(letter) {
-        case 'A+': return 5.0;
-        case 'A': return 4.0;
-        case 'A-': return 3.5;
-        case 'B': return 3.0;
-        case 'C': return 2.0;
-        case 'D': return 1.0;
-        default: return 0.0;
-      }
-    }
-    function percentToPoint(p) { return letterToPoint(percentToLetter(p)); }
+  <!-- View/Print Modal -->
+  <div id="printModal" class="fixed inset-0 hidden items-center justify-center bg-black/50 p-4">
+    <div class="bg-white max-w-3xl w-full rounded shadow p-4 overflow-auto" id="printContent">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-semibold">Result</h3>
+        <div class="flex gap-2">
+          <button id="printBtn" class="px-3 py-1 bg-indigo-600 text-white rounded">Print</button>
+          <button id="closePrint" class="px-3 py-1 border rounded">Close</button>
+        </div>
+      </div>
+      <div id="printInner" class="prose"></div>
+    </div>
+  </div>
 
-    // DOM refs
-    const subjectsGrid = document.getElementById('subjectsGrid');
-    const theadRow = document.getElementById('theadRow');
-    const tbody = document.getElementById('tbody');
-    const form = document.getElementById('entryForm');
-    const saveBtn = document.getElementById('saveBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const newBlankBtn = document.getElementById('newBlankBtn');
-    const searchInput = document.getElementById('search');
-    const clearSearchBtn = document.getElementById('clearSearch');
-    const headerChips = document.getElementById('headerChips');
-    const printable = document.getElementById('printable');
+<script>
+/* ---------- CONFIG ---------- */
+/* Replace with your Apps Script Web App URL after deployment */
+const SCRIPT_URL_INPUT = document.getElementById('scriptUrl');
+const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwjgDUNYN4HNLB-_B8fEQ2O6UBZ5P6ulnaPYTTaF2g0V-6oHGPx6NlAdtDh876BtzZ5/exec'; // leave blank — paste into UI
+/* ---------- SUBJECTS ---------- */
+const SUBJECTS = [
+  {key:'quran_mazid', label:'Quran Mazid'},
+  {key:'hadis', label:'Hadis'},
+  {key:'fikah_1', label:'Fikah 1'},
+  {key:'fikah_2_or_physics_2', label:'Fikah 2 / Physics 2'},
+  {key:'bengali_1', label:'Bengali 1'},
+  {key:'bengali_2', label:'Bengali 2'},
+  {key:'english_1', label:'English 1'},
+  {key:'english_2', label:'English 2'},
+  {key:'arabic_1', label:'Arabic 1'},
+  {key:'arabic_2_or_biology_2', label:'Arabic 2 / Biology 2'},
+  {key:'ict', label:'ICT'},
+  {key:'camistry_2_or_history', label:'Camistry 2 / History'},
+  {key:'mantik', label:'Mantik'},
+  {key:'civics_or_higher_math', label:'Civics / Higher Math'}
+];
 
-    // build inputs for subjects
+/* Grade mapping function:
+   A+ 80-100 => 5.0
+   A  70-79  => 4.0
+   A- 60-69  => 3.5
+   B  50-59  => 3.0
+   C  40-49  => 2.0
+   D  33-39  => 1.0
+   F  0-32   => 0.0
+*/
+function percentToGrade(percent){
+  percent = Number(percent);
+  if (percent >= 80) return {letter:'A+', point:5.0};
+  if (percent >= 70) return {letter:'A', point:4.0};
+  if (percent >= 60) return {letter:'A-', point:3.5};
+  if (percent >= 50) return {letter:'B', point:3.0};
+  if (percent >= 40) return {letter:'C', point:2.0};
+  if (percent >= 33) return {letter:'D', point:1.0};
+  return {letter:'F', point:0.0};
+}
+
+/* ---------- UI BUILD ---------- */
+const subjectsGrid = document.getElementById('subjectsGrid');
+SUBJECTS.forEach(s => {
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = `
+    <label class="block text-xs text-slate-700">${s.label}</label>
+    <input type="number" min="0" max="100" id="${s.key}" class="w-full p-2 rounded border border-slate-200" />
+  `;
+  subjectsGrid.appendChild(wrapper);
+});
+
+/* Table head build */
+const tableHead = document.getElementById('tableHead');
+function buildTableHead(){
+  // subjects columns
+  const headers = ['name','roll', ...SUBJECTS.map(s=>s.label), 'Total', 'Grade','Point','Merit','Actions'];
+  tableHead.innerHTML = '';
+  headers.forEach(h => {
+    const th = document.createElement('th');
+    th.className = 'text-left px-2 py-2 text-xs text-slate-600';
+    th.textContent = h;
+    tableHead.appendChild(th);
+  });
+}
+buildTableHead();
+
+/* ---------- Helpers ---------- */
+const $ = id => document.getElementById(id);
+const formMsg = $('formMsg');
+const resultsTableBody = $('tableBody');
+
+function getScriptUrl(){
+  return SCRIPT_URL_INPUT.value.trim() || DEFAULT_SCRIPT_URL;
+}
+
+function showMsg(el, txt, t=3000){ el.textContent = txt; if(t>0) setTimeout(()=>el.textContent='', t); }
+
+/* Copy headers */
+document.getElementById('copyHeadersBtn').addEventListener('click', ()=>{
+  const txt = document.getElementById('sheetHeaders').value;
+  navigator.clipboard.writeText(txt).then(()=> showMsg(formMsg, 'Headers copied to clipboard',2000));
+});
+
+/* Reset form */
+document.getElementById('resetBtn').addEventListener('click', resetForm);
+function resetForm(){
+  $('resultForm').reset();
+  formMsg.textContent='';
+  $('roll').disabled = false;
+}
+
+/* POST helper */
+async function postToScript(body){
+  const url = getScriptUrl();
+  if (!url) { showMsg(formMsg, 'Paste your Apps Script web app URL above', 4000); throw 'no_url'; }
+  const res = await fetch(url, {
+    method:'POST',
+    body: JSON.stringify(body),
+    headers: {'Content-Type':'application/json'}
+  });
+  return res.json();
+}
+
+/* GET helper */
+async function getFromScript(params){
+  const url = getScriptUrl();
+  if (!url) { showMsg(formMsg, 'Paste your Apps Script web app URL above', 4000); throw 'no_url'; }
+  const u = new URL(url);
+  Object.keys(params||{}).forEach(k => u.searchParams.set(k, params[k]));
+  const res = await fetch(u.toString());
+  return res.json();
+}
+
+/* ---------- Save (new or update) ---------- */
+document.getElementById('resultForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const name = $('name').value.trim();
+  const roll = $('roll').value.trim();
+  if (!name || !roll) { showMsg(formMsg, 'Name and roll are required', 3000); return; }
+
+  // collect subject marks
+  const marks = {};
+  let subjectCount = 0;
+  let total = 0;
+  SUBJECTS.forEach(s=>{
+    const v = $(''+s.key).value;
+    const num = v === '' ? '' : Number(v);
+    marks[s.key] = num === '' ? '' : (isNaN(num) ? 0 : Math.max(0, Math.min(100, num)));
+    if (marks[s.key] !== '') { total += marks[s.key]; subjectCount++; }
+  });
+
+  // Compute percentage as average of provided subjects (if none provided, percentage 0)
+  const percentage = subjectCount ? (total / subjectCount) : 0;
+  // For final GPA: compute grade points per subject and average across subjects that have marks
+  const gradePoints = [];
+  SUBJECTS.forEach(s=>{
+    const val = marks[s.key];
+    if (val !== '') {
+      gradePoints.push(percentToGrade(val).point);
+    }
+  });
+  const gpa = gradePoints.length ? (gradePoints.reduce((a,b)=>a+b,0)/gradePoints.length) : 0;
+  const finalLetter = percentToGrade(percentage).letter;
+
+  // build payload matching sheet headers
+  const payload = {
+    action: 'new-entry',
+    name: name,
+    roll: roll
+  };
+  SUBJECTS.forEach(s => payload[s.key] = marks[s.key] === '' ? '' : marks[s.key]);
+  payload.total = Math.round(total*100)/100;
+  payload.percentage = Math.round(percentage*100)/100;
+  payload.gpa = Math.round(gpa*100)/100;
+  payload.letter_grade = finalLetter;
+
+  // Determine whether this is new or update (try to GET the roll first)
+  try {
+    const existing = await getFromScript({action:'get', roll: roll});
+    if (existing && !existing.error) {
+      // record exists -> update
+      payload.action = 'update';
+      const resp = await postToScript(payload);
+      if (resp.ok) { showMsg(formMsg, 'Updated', 2000); await loadAll(); resetForm(); }
+      else showMsg(formMsg, 'Update failed: ' + (resp.error||'unknown'), 3000);
+    } else {
+      // new
+      const resp = await postToScript(payload);
+      if (resp.ok) { showMsg(formMsg, 'Saved', 2000); await loadAll(); resetForm(); }
+      else if (resp.error === 'roll_exists') showMsg(formMsg, 'Roll already exists', 3000);
+      else showMsg(formMsg, 'Save failed: ' + (resp.error||'unknown'), 3000);
+    }
+  } catch(err){
+    console.error(err);
+    showMsg(formMsg, 'Request failed', 3000);
+  }
+});
+
+/* ---------- Load all results ---------- */
+async function loadAll(){
+  try {
+    const data = await getFromScript({action:'list'});
+    renderTable(Array.isArray(data)?data:[]);
+  } catch (err) {
+    console.error(err);
+    showMsg(formMsg, 'Failed to load', 3000);
+  }
+}
+
+/* ---------- Render table ---------- */
+function renderTable(rows){
+  resultsTableBody.innerHTML = '';
+  if (!rows.length) {
+    resultsTableBody.innerHTML = '<tr><td colspan="'+(3+SUBJECTS.length)+'" class="px-2 py-4 text-sm text-slate-500">No records</td></tr>';
+    return;
+  }
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.className = 'hover:bg-slate-50';
+
+    // name cell
+    const tdName = document.createElement('td'); tdName.className='px-2 py-2'; tdName.textContent = r.name || '';
+    tr.appendChild(tdName);
+
+    // roll
+    const tdRoll = document.createElement('td'); tdRoll.className='px-2 py-2 font-mono text-xs'; tdRoll.textContent = r.roll || '';
+    tr.appendChild(tdRoll);
+
+    // subjects
+    let total = 0, count = 0;
     SUBJECTS.forEach(s => {
-      const id = s;
-      const label = s.replace(/_/g, ' ');
-      const wrapper = document.createElement('div');
-      wrapper.className = 'flex flex-col';
-      wrapper.innerHTML = `
-        <label class="text-xs text-slate-600 mb-1">${label}</label>
-        <input inputmode="numeric" pattern="[0-9]*" min="0" max="100" name="${id}" id="${id}" class="p-2 border rounded" placeholder="0-100" />
-      `;
-      subjectsGrid.appendChild(wrapper);
+      const v = r[s.key];
+      const td = document.createElement('td'); td.className='px-2 py-2 text-xs';
+      if (v === '' || v === undefined) td.textContent = '-';
+      else { td.textContent = v; total += Number(v); count++; }
+      tr.appendChild(td);
     });
 
-    // header chips (copy code)
-    const ALL_HEADERS = ['name','roll',...SUBJECTS,'total','grade','point','merit','timestamp'];
-    ALL_HEADERS.forEach(h => {
-      const chip = document.createElement('div');
-      chip.className = 'flex items-center gap-2 bg-slate-50 border px-2 py-1 rounded';
-      chip.innerHTML = `
-        <code class="text-xs font-mono">${h}</code>
-        <button title="Copy" class="copy-btn text-slate-500 hover:text-slate-800">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M8 2a2 2 0 00-2 2v1H5a2 2 0 00-2 2v9a2 2 0 002 2h6a2 2 0 002-2v-1h1a2 2 0 002-2V8a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H8z" />
-          </svg>
-        </button>
-      `;
-      chip.querySelector('.copy-btn').addEventListener('click', ()=> {
-        navigator.clipboard.writeText(h);
-      });
-      headerChips.appendChild(chip);
-    });
+    // total
+    const tdTotal = document.createElement('td'); tdTotal.className='px-2 py-2 text-xs'; tdTotal.textContent = r.total || (count ? total : '');
+    tr.appendChild(tdTotal);
 
-    // build table header
-    function buildTableHeader() {
-      theadRow.innerHTML = '';
-      ALL_HEADERS.forEach(h => {
-        const th = document.createElement('th');
-        th.className = 'px-3 py-2 text-left text-sm text-slate-700';
-        th.textContent = h;
-        theadRow.appendChild(th);
-      });
-      const thActions = document.createElement('th');
-      thActions.className = 'px-3 py-2 text-left text-sm text-slate-700';
-      thActions.textContent = 'actions';
-      theadRow.appendChild(thActions);
-    }
+    // letter grade
+    const tdLetter = document.createElement('td'); tdLetter.className='px-2 py-2 text-xs'; tdLetter.textContent = r.letter_grade || '';
+    tr.appendChild(tdLetter);
 
-    buildTableHeader();
+    // point (gpa)
+    const tdPoint = document.createElement('td'); tdPoint.className='px-2 py-2 text-xs'; tdPoint.textContent = r.gpa || '';
+    tr.appendChild(tdPoint);
 
-    // state
-    let entries = []; // loaded from backend
-    let editingRoll = null;
+    // merit (we'll show percentage)
+    const tdMerit = document.createElement('td'); tdMerit.className='px-2 py-2 text-xs'; tdMerit.textContent = r.percentage!==undefined ? r.percentage : '';
+    tr.appendChild(tdMerit);
 
-    // utility: compute totals and grade
-    function computeResult(data) {
-      let total = 0;
-      let count = 0;
-      SUBJECTS.forEach(s => {
-        const v = parseFloat(data[s]);
-        if (!isNaN(v)) { total += v; count++; }
-      });
-      const avgPercent = count ? (total / count) : 0;
-      const grade = percentToLetter(avgPercent);
-      // final GPA is average of grade points for each subject
-      let sumPoints=0, subCount=0;
-      SUBJECTS.forEach(s => {
-        const v = parseFloat(data[s]);
-        if (!isNaN(v)) { sumPoints += percentToPoint(v); subCount++; }
-      });
-      const point = subCount ? (sumPoints / subCount) : 0;
-      const merit = avgPercent;
-      return {
-        total: parseFloat(total.toFixed(2)),
-        grade,
-        point: parseFloat(point.toFixed(2)),
-        merit: parseFloat(merit.toFixed(2))
-      };
-    }
-
-    // render table rows
-    function renderRows(list) {
-      tbody.innerHTML = '';
-      list.forEach(row => {
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-50';
-        // basic columns
-        ALL_HEADERS.forEach(h => {
-          const td = document.createElement('td');
-          td.className = 'px-3 py-2 text-sm';
-          let val = row[h] ?? '';
-          td.textContent = val;
-          tr.appendChild(td);
-        });
-
-        // actions
-        const td = document.createElement('td');
-        td.className = 'px-3 py-2 text-sm space-x-1';
-        td.innerHTML = `
-          <button class="edit text-blue-600 px-2 py-1 text-xs">Edit</button>
-          <button class="view text-sky-800 px-2 py-1 text-xs">View</button>
-          <button class="print text-emerald-700 px-2 py-1 text-xs">Print</button>
-          <button class="del text-red-600 px-2 py-1 text-xs">Delete</button>
-        `;
-        tr.appendChild(td);
-
-        // attach listeners
-        td.querySelector('.edit').addEventListener('click', ()=> populateFormForEdit(row));
-        td.querySelector('.view').addEventListener('click', ()=> openViewModal(row));
-        td.querySelector('.print').addEventListener('click', ()=> printRow(row));
-        td.querySelector('.del').addEventListener('click', ()=> deleteRow(row.roll));
-        tbody.appendChild(tr);
-      });
-    }
-
-    // populate form for editing
-    function populateFormForEdit(row) {
-      editingRoll = row.roll;
-      document.getElementById('name').value = row.name || '';
-      document.getElementById('roll').value = row.roll || '';
-      SUBJECTS.forEach(s => {
-        document.getElementById(s).value = row[s] ?? '';
-      });
-      window.scrollTo({top:0, behavior:'smooth'});
-    }
-
-    // view modal (simple new window)
-    function openViewModal(row) {
-      const html = generatePrintableHTML(row, false);
-      const w = window.open('', '_blank', 'width=800,height=800');
-      w.document.write(html);
-      w.document.close();
-    }
-
-    // print row
-    function printRow(row) {
-      const html = generatePrintableHTML(row, true);
-      const w = window.open('', '_blank', 'width=800,height=800');
-      w.document.write(html);
-      w.document.close();
-      w.print();
-    }
-
-    function generatePrintableHTML(row, autoPrint=false) {
-      let rowsHtml = '';
-      SUBJECTS.forEach(s => {
-        rowsHtml += `<tr><td style="padding:6px;border:1px solid #ddd">${s.replace(/_/g,' ')}</td><td style="padding:6px;border:1px solid #ddd">${row[s] ?? ''}</td></tr>`;
-      });
-      return `
-        <html>
-        <head>
-          <meta charset="utf-8"/>
-          <title>Print Result</title>
-          <style>body{font-family:Helvetica,Arial,sans-serif;padding:20px}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ddd;padding:8px}</style>
-        </head>
-        <body>
-          <h2>Result: ${row.name} (${row.roll})</h2>
-          <table>
-            <tr><th>Subject</th><th>Marks</th></tr>
-            ${rowsHtml}
-            <tr><td style="padding:6px;border:1px solid #ddd">Total</td><td style="padding:6px;border:1px solid #ddd">${row.total}</td></tr>
-            <tr><td style="padding:6px;border:1px solid #ddd">Average / Merit</td><td style="padding:6px;border:1px solid #ddd">${row.merit}%</td></tr>
-            <tr><td style="padding:6px;border:1px solid #ddd">Grade</td><td style="padding:6px;border:1px solid #ddd">${row.grade}</td></tr>
-            <tr><td style="padding:6px;border:1px solid #ddd">GPA</td><td style="padding:6px;border:1px solid #ddd">${row.point}</td></tr>
-          </table>
-          ${autoPrint ? '<script>window.onload=function(){window.print();}</script>' : ''}
-        </body>
-        </html>
-      `;
-    }
-
-    // fetch all
-    async function loadAll() {
-      // call API list
-      try {
-        const res = await fetch(API_URL + '?action=list');
-        const json = await res.json();
-        entries = json.data || [];
-        renderRows(entries);
-      } catch (e) {
-        console.error('load error', e);
-      }
-    }
-
-    // create new entry
-    async function createEntry(obj) {
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({action:'new-entry', data: obj})
-        });
-        return await res.json();
-      } catch(e){ console.error(e); throw e; }
-    }
-
-    // update entry
-    async function updateEntry(obj) {
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({action:'update', data: obj})
-        });
-        return await res.json();
-      } catch(e){ console.error(e); throw e; }
-    }
-
-    // delete entry
-    async function deleteEntryApi(roll) {
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({action:'delete', data: {roll}})
-        });
-        return await res.json();
-      } catch(e){ console.error(e); throw e; }
-    }
-
-    // delete row
-    async function deleteRow(roll) {
-      if (!confirm('Delete record for roll: ' + roll + '?')) return;
-      await deleteEntryApi(roll);
-      await loadAll();
-    }
-
-    // form submit
-    form.addEventListener('submit', async (ev) => {
-      ev.preventDefault();
-      const data = {};
-      data.name = document.getElementById('name').value.trim();
-      data.roll = document.getElementById('roll').value.trim();
-      SUBJECTS.forEach(s => data[s] = (document.getElementById(s).value || '').trim());
-      const computed = computeResult(data);
-      data.total = computed.total;
-      data.grade = computed.grade;
-      data.point = computed.point;
-      data.merit = computed.merit;
-      data.timestamp = new Date().toISOString();
-
-      try {
-        if (editingRoll && editingRoll === data.roll) {
-          await updateEntry(data);
-        } else {
-          // ensure unique roll by checking entries list
-          const exists = entries.find(r => r.roll === data.roll);
-          if (exists) {
-            if (!confirm('Roll already exists. Overwrite?')) return;
-            await updateEntry(data);
-          } else {
-            await createEntry(data);
-          }
-        }
-        editingRoll = null;
-        form.reset();
-        await loadAll();
-      } catch (e) {
-        alert('Save failed');
-        console.error(e);
-      }
-    });
-
-    // clear form
-    clearBtn.addEventListener('click', ()=> {
-      form.reset();
-      editingRoll = null;
-    });
-    newBlankBtn.addEventListener('click', ()=> {
-      form.reset();
-      editingRoll = null;
-      document.getElementById('name').focus();
-    });
-
-    // search logic (client-side)
-    searchInput.addEventListener('input', ()=> {
-      const q = searchInput.value.trim();
-      clearSearchBtn.classList.toggle('hidden', q.length===0);
-      if (!q) {
-        renderRows(entries);
-        return;
-      }
-      const filtered = entries.filter(r => (r.roll||'').toString().toLowerCase().includes(q.toLowerCase()));
-      renderRows(filtered);
-    });
-    clearSearchBtn.addEventListener('click', ()=> {
-      searchInput.value='';
-      clearSearchBtn.classList.add('hidden');
-      renderRows(entries);
-    });
-
-    // initial load
-    loadAll();
-  </script>
-</body>
-</html>
+    // actions
+    const tdActions = document.createElement('td'); tdActions.className='px-2 py-2 text-xs';
+    tdA
