@@ -1,4 +1,4 @@
-<!-- index.html -->
+<!-- index.html — ready to host on GitHub Pages. Put your Apps Script Web App URL into API_BASE. -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -7,346 +7,320 @@
   <title>College Result Store</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 min-h-screen text-gray-800">
-  <div class="max-w-6xl mx-auto p-4">
-    <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+<body class="bg-gray-50 min-h-screen font-sans">
+  <div class="max-w-7xl mx-auto p-4">
+    <header class="flex items-center justify-between mb-4">
       <h1 class="text-2xl font-semibold">College Result Store</h1>
-      <div class="w-full sm:w-80 relative">
-        <input id="search" type="search" placeholder="Search by roll" class="w-full pl-4 pr-10 py-2 rounded border focus:outline-none" />
-        <button id="clearSearch" class="absolute right-1 top-1/2 -translate-y-1/2 p-1 text-gray-600 hidden" title="Clear">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        </button>
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <input id="search" placeholder="Search by roll..." class="pl-3 pr-8 py-2 rounded border w-64 focus:outline-none" />
+          <button id="clearSearch" title="Clear" class="absolute right-1 top-1/2 -translate-y-1/2 p-1" aria-label="clear">
+            <!-- Cross icon -->
+            <svg id="clearIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" class="opacity-50">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        <button id="newBtn" class="bg-blue-600 text-white px-4 py-2 rounded">New Result</button>
       </div>
     </header>
 
-    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <form id="resultForm" class="bg-white p-4 rounded shadow col-span-1 lg:col-span-1">
-        <input type="hidden" id="recordId" />
-        <div class="grid grid-cols-1 gap-3">
-          <input id="name" placeholder="Name" class="w-full p-2 border rounded" required />
-          <input id="roll" placeholder="Roll" class="w-full p-2 border rounded" required />
-          <div id="subjectsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <!-- subject inputs injected by JS -->
-          </div>
-          <div class="flex gap-2">
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
-            <button type="button" id="resetBtn" class="bg-gray-200 px-4 py-2 rounded">Reset</button>
-            <button type="button" id="calcBtn" class="ml-auto bg-green-600 text-white px-4 py-2 rounded">Calculate</button>
-          </div>
-        </div>
-      </form>
-
-      <div class="bg-white rounded shadow p-4 col-span-2 overflow-x-auto">
-        <table id="resultsTable" class="min-w-full table-auto text-sm">
-          <!-- table built by JS -->
+    <main>
+      <section class="bg-white shadow rounded p-4 mb-4 overflow-x-auto">
+        <table id="resultsTable" class="min-w-full divide-y">
+          <thead id="thead" class="bg-gray-100">
+          </thead>
+          <tbody id="tbody" class="bg-white"></tbody>
         </table>
-      </div>
-    </section>
+      </section>
+    </main>
   </div>
 
-<script>
-/* ---------- CONFIG ---------- */
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbxAv47c0OpWjUerrmj02QgrVZH5d6j9zwZo2CAYVqmya3oa0h5CDF-VKkVvKUxbh3fo/exec';
-const SUBJECTS = [
-  "Quran Mazid","Hadis","Fikah 1","Fikah 2/ Physics 2","Bengali 1","Bengali 2",
-  "English 1","English 2","Arabic 1","Arabic 2/Biology 2","ICT","Camistry 2/History",
-  "Mantik","Civics/Higher Math"
-];
-/* Grade mapping: percent -> {grade, point} */
-function gradePointFromPercent(p) {
-  p = Number(p);
-  if (p >= 80) return {grade:'A+', point:5.0};
-  if (p >= 70) return {grade:'A', point:4.0};
-  if (p >= 60) return {grade:'A-', point:3.5};
-  if (p >= 50) return {grade:'B', point:3.0};
-  if (p >= 40) return {grade:'C', point:2.0};
-  if (p >= 33) return {grade:'D', point:1.0};
-  return {grade:'F', point:0.0};
-}
-function gradeFromGPA(gpa) {
-  if (gpa >= 5.0) return 'A+';
-  if (gpa >= 4.0) return 'A';
-  if (gpa >= 3.5) return 'A-';
-  if (gpa >= 3.0) return 'B';
-  if (gpa >= 2.0) return 'C';
-  if (gpa >= 1.0) return 'D';
-  return 'F';
-}
-/* ---------- UI BUILD ---------- */
-const subjectsGrid = document.getElementById('subjectsGrid');
-SUBJECTS.forEach(s => {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'flex flex-col';
-  wrapper.innerHTML = `<label class="text-xs text-gray-600">${s}</label>
-    <input data-subject="${s}" type="number" min="0" max="100" class="p-2 border rounded subject-input" />`;
-  subjectsGrid.appendChild(wrapper);
-});
+  <!-- Modal -->
+  <div id="modal" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-40">
+    <div class="bg-white rounded-lg w-full max-w-3xl p-4">
+      <div class="flex items-center justify-between mb-4">
+        <h2 id="modalTitle" class="text-lg font-semibold"></h2>
+        <button id="closeModal" class="text-gray-500">Close</button>
+      </div>
+      <form id="form" class="grid grid-cols-1 gap-3">
+        <!-- form fields inserted dynamically -->
+        <div class="flex justify-end gap-2 mt-4">
+          <button type="button" id="saveBtn" class="bg-green-600 text-white px-4 py-2 rounded">Save</button>
+          <button type="button" id="cancelBtn" class="bg-gray-300 px-4 py-2 rounded">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-const form = document.getElementById('resultForm');
-const table = document.getElementById('resultsTable');
-const searchInput = document.getElementById('search');
-const clearBtn = document.getElementById('clearSearch');
-const resetBtn = document.getElementById('resetBtn');
-const calcBtn = document.getElementById('calcBtn');
-const recordIdInput = document.getElementById('recordId');
+  <template id="rowTemplate">
+    <tr class="hover:bg-gray-50">
+      <!-- dynamic cells -->
+    </tr>
+  </template>
 
-let DATA = [];
+  <script>
+  // ---------- CONFIG ----------
+  const API_BASE = 'https://script.google.com/macros/s/AKfycby6Jsu7kRLoc7bp6hGxY65u5RvMpLhfsgKrykhsZouNu9YfcgEPNnmPOmPd3YJdIjYW/exec'; // e.g. https://script.google.com/macros/s/AKfy.../exec
+  const SHEET_HEADERS = ["Name","Roll","Quran Mazid","Hadis","Fikah 1","Fikah 2/ Physics 2","Bengali 1","Bengali 2","English 1","English 2","Arabic 1","Arabic 2/Biology 2","ICT","Camistry 2/History","Mantik","Civics/Higher Math","Total","Grade","Point","Merit"];
+  // ----------------------------
 
-/* ---------- Fetch & Render ---------- */
-async function fetchAll() {
-  const res = await fetch(`${GAS_URL}?action=list`);
-  const json = await res.json();
-  DATA = json.data || [];
-  renderTable(DATA);
-}
-function renderTable(rows) {
-  const visible = rows.filter(r => {
-    const q = searchInput.value.trim();
-    if (!q) return true;
-    return String(r.roll || '').toLowerCase().includes(q.toLowerCase());
-  });
-  const cols = ['name','roll', ...SUBJECTS, 'total','grade','gpa','merit'];
-  // header
-  let html = '<thead><tr class="bg-gray-100"><th class="p-2 text-left">#</th>';
-  cols.forEach(c => html += `<th class="p-2 text-left">${escapeHtml(c)}</th>`);
-  html += '<th class="p-2 text-left">Actions</th></tr></thead><tbody>';
-  visible.forEach((r,idx) => {
-    html += `<tr class="${idx%2? 'bg-white':'bg-gray-50'}">`;
-    html += `<td class="p-2">${idx+1}</td>`;
-    cols.forEach(c => {
-      html += `<td class="p-2">${escapeHtml(r[c] !== undefined ? String(r[c]) : '')}</td>`;
+  const state = { rows: [], headers: SHEET_HEADERS.slice() };
+
+  const thead = document.getElementById('thead');
+  const tbody = document.getElementById('tbody');
+  const searchInput = document.getElementById('search');
+  const clearSearchBtn = document.getElementById('clearSearch');
+  const newBtn = document.getElementById('newBtn');
+  const modal = document.getElementById('modal');
+  const modalTitle = document.getElementById('modalTitle');
+  const form = document.getElementById('form');
+  const saveBtn = document.getElementById('saveBtn');
+  const cancelBtn = document.getElementById('cancelBtn');
+  const closeModal = document.getElementById('closeModal');
+
+  // Build table header
+  function renderHeader() {
+    const tr = document.createElement('tr');
+    state.headers.forEach(h => {
+      const th = document.createElement('th');
+      th.textContent = h;
+      th.className = 'text-left px-3 py-2 text-sm font-medium text-gray-600';
+      tr.appendChild(th);
     });
-    html += `<td class="p-2">
-      <button class="editBtn mr-2" data-id="${r.id}" title="Edit">✏️</button>
-      <button class="deleteBtn mr-2" data-id="${r.id}" title="Delete">🗑️</button>
-      <button class="viewBtn mr-2" data-id="${r.id}" title="View">🔍</button>
-      <button class="printBtn" data-id="${r.id}" title="Print">🖨️</button>
-    </td></tr>`;
-  });
-  html += '</tbody>';
-  table.innerHTML = html;
-  attachTableEvents();
-}
-
-function attachTableEvents() {
-  document.querySelectorAll('.editBtn').forEach(b => b.onclick = onEdit);
-  document.querySelectorAll('.deleteBtn').forEach(b => b.onclick = onDelete);
-  document.querySelectorAll('.viewBtn').forEach(b => b.onclick = onView);
-  document.querySelectorAll('.printBtn').forEach(b => b.onclick = onPrint);
-}
-
-/* ---------- Form Handling ---------- */
-form.addEventListener('submit', async (ev) => {
-  ev.preventDefault();
-  const record = readForm();
-  const isEdit = !!recordIdInput.value;
-  if (isEdit) {
-    await sendUpdate(recordIdInput.value, record);
-  } else {
-    record.id = Date.now().toString();
-    record.timestamp = new Date().toISOString();
-    await sendCreate(record);
+    const thAct = document.createElement('th');
+    thAct.textContent = 'Actions';
+    thAct.className = 'text-left px-3 py-2 text-sm font-medium text-gray-600';
+    tr.appendChild(thAct);
+    thead.innerHTML = '';
+    thead.appendChild(tr);
   }
-  resetForm();
-  await fetchAll();
-});
 
-calcBtn.addEventListener('click', (e) => {
-  e.preventDefault();
-  const record = readForm();
-  const computed = computeFinal(record);
-  populateComputedToForm(computed);
-});
+  // Fetch all rows
+  async function fetchRows() {
+    const url = API_BASE + '?action=list';
+    const r = await fetch(url);
+    const data = await r.json();
+    state.rows = data.rows || [];
+    computeMeritAndGPA();
+    renderRows(state.rows);
+  }
 
-resetBtn.addEventListener('click', (e) => {
-  e.preventDefault();
-  resetForm();
-});
+  // Compute merit ranking from points or total: higher Point then higher Total
+  function computeMeritAndGPA() {
+    // ensure Point numeric
+    state.rows.forEach(r => r.Point = Number(r.Point || 0));
+    // sort copy by Point desc then Total desc
+    const sorted = state.rows.slice().sort((a,b) => {
+      if (b.Point !== a.Point) return b.Point - a.Point;
+      return Number(b.Total || 0) - Number(a.Total || 0);
+    });
+    sorted.forEach((row, idx) => {
+      row._meritRank = idx + 1;
+    });
+    // attach to original rows by roll or _row
+    state.rows.forEach(r => {
+      const found = sorted.find(s => s._row === r._row);
+      r.Merit = found ? found._meritRank : '';
+    });
+  }
 
-function readForm() {
-  const rec = {};
-  rec.name = document.getElementById('name').value.trim();
-  rec.roll = document.getElementById('roll').value.trim();
-  SUBJECTS.forEach(s => {
-    const el = document.querySelector(`[data-subject="${s}"]`);
-    rec[s] = el && el.value !== '' ? Number(el.value) : '';
+  function renderRows(rows) {
+    tbody.innerHTML = '';
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.className = 'border-b';
+      state.headers.forEach(h => {
+        const td = document.createElement('td');
+        td.className = 'px-3 py-2 text-sm';
+        td.textContent = r[h] !== undefined ? r[h] : '';
+        tr.appendChild(td);
+      });
+      const tdActions = document.createElement('td');
+      tdActions.className = 'px-3 py-2 text-sm space-x-2';
+      const viewBtn = createAction('View', () => openView(r));
+      const editBtn = createAction('Edit', () => openEdit(r));
+      const delBtn = createAction('Delete', () => doDelete(r));
+      const printBtn = createAction('Print', () => doPrint(r));
+      tdActions.appendChild(viewBtn);
+      tdActions.appendChild(editBtn);
+      tdActions.appendChild(delBtn);
+      tdActions.appendChild(printBtn);
+      tr.appendChild(tdActions);
+      tbody.appendChild(tr);
+    });
+  }
+
+  function createAction(label, fn) {
+    const btn = document.createElement('button');
+    btn.textContent = label;
+    btn.className = 'text-xs px-2 py-1 rounded border';
+    btn.addEventListener('click', fn);
+    return btn;
+  }
+
+  // Modal helpers
+  function openModal(title) {
+    modalTitle.textContent = title;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+  function closeModalFunc() {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    form.innerHTML = '';
+  }
+
+  // New
+  newBtn.addEventListener('click', () => {
+    buildForm();
+    openModal('New Result');
   });
-  return rec;
-}
-function populateComputedToForm(c) {
-  // set total, grade, gpa, merit fields hidden in sheet by creating inputs temporarily
-  // We'll show them in form as readonly hidden inputs by setting values on DOM (not visible) or just set custom dataset
-  // For simplicity create hidden inputs if not exist
-  ['total','grade','gpa','merit'].forEach(k => {
-    let el = document.getElementById(k);
-    if (!el) {
-      el = document.createElement('input');
-      el.type='hidden'; el.id = k; form.appendChild(el);
+
+  // Build form fields dynamically from headers
+  function buildForm(data = {}) {
+    form.innerHTML = '';
+    state.headers.forEach(h => {
+      if (['Total','Grade','Point','Merit'].includes(h)) return; // computed
+      const wrap = document.createElement('div');
+      wrap.className = 'grid grid-cols-1 gap-1';
+      const label = document.createElement('label');
+      label.className = 'text-sm font-medium';
+      label.textContent = h;
+      const input = document.createElement('input');
+      input.name = h;
+      input.className = 'border rounded px-2 py-2';
+      input.value = data[h] || '';
+      if (h === 'Roll') input.required = true;
+      if (h !== 'Name' && h !== 'Roll') {
+        input.type = 'number';
+        input.min = 0;
+        input.max = 100;
+      }
+      wrap.appendChild(label);
+      wrap.appendChild(input);
+      form.appendChild(wrap);
+    });
+    // hidden _row if editing
+    if (data._row) {
+      const hidden = document.createElement('input');
+      hidden.type = 'hidden';
+      hidden.name = '_row';
+      hidden.value = data._row;
+      form.appendChild(hidden);
     }
-    el.value = c[k];
-  });
-}
-function resetForm() {
-  form.reset();
-  recordIdInput.value = '';
-  ['total','grade','gpa','merit'].forEach(k => {
-    const el = document.getElementById(k);
-    if (el) el.remove();
-  });
-}
-
-/* ---------- Compute final GPA/Grade/Merit ---------- */
-function computeFinal(record) {
-  const marks = SUBJECTS.map(s => {
-    const v = record[s];
-    return (v === '' || v === null || isNaN(Number(v))) ? 0 : Number(v);
-  });
-  const total = marks.reduce((a,b)=>a+b,0);
-  const perSubjectGP = marks.map(m => gradePointFromPercent(m).point);
-  const gpa = perSubjectGP.reduce((a,b)=>a+b,0) / SUBJECTS.length;
-  const gpaRounded = Math.round(gpa * 100) / 100;
-  const overallPercent = Math.round((total / (SUBJECTS.length * 100)) * 10000) / 100;
-  const overallGrade = gradeFromGPA(gpaRounded);
-  const merit = overallPercent; // percentage
-  return { total, grade: overallGrade, gpa: gpaRounded.toFixed(2), merit: merit + '%' };
-}
-
-/* ---------- CRUD via GAS ---------- */
-async function sendCreate(record) {
-  // attach computed
-  const computed = computeFinal(record);
-  record.total = computed.total;
-  record.grade = computed.grade;
-  record.gpa = computed.gpa;
-  record.merit = computed.merit;
-  record.timestamp = new Date().toISOString();
-  const payload = { action: 'create', record };
-  await postJSON(GAS_URL, payload);
-}
-async function sendUpdate(id, record) {
-  const computed = computeFinal(record);
-  record.total = computed.total;
-  record.grade = computed.grade;
-  record.gpa = computed.gpa;
-  record.merit = computed.merit;
-  record.timestamp = new Date().toISOString();
-  record.id = id;
-  const payload = { action: 'update', id, record };
-  await postJSON(GAS_URL, payload);
-}
-async function sendDelete(id) {
-  const payload = { action: 'delete', id };
-  await postJSON(GAS_URL, payload);
-}
-async function postJSON(url, body) {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify(body)
-  });
-  const json = await res.json();
-  return json;
-}
-
-/* ---------- Row Actions ---------- */
-function onEdit(ev) {
-  const id = ev.currentTarget.dataset.id;
-  const row = DATA.find(r => String(r.id) === String(id));
-  if (!row) return;
-  document.getElementById('name').value = row.name || '';
-  document.getElementById('roll').value = row.roll || '';
-  SUBJECTS.forEach(s => {
-    const el = document.querySelector(`[data-subject="${s}"]`);
-    el.value = row[s] !== undefined ? row[s] : '';
-  });
-  // set computed hidden inputs
-  populateComputedToForm({ total: row.total, grade: row.grade, gpa: row.gpa, merit: row.merit });
-  recordIdInput.value = id;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-async function onDelete(ev) {
-  const id = ev.currentTarget.dataset.id;
-  if (!confirm('Delete this record?')) return;
-  await sendDelete(id);
-  await fetchAll();
-}
-
-function onView(ev) {
-  const id = ev.currentTarget.dataset.id;
-  const row = DATA.find(r => String(r.id) === String(id));
-  if (!row) return;
-  const html = buildViewHtml(row);
-  const w = window.open('', '_blank', 'width=800,height=600');
-  w.document.write(html);
-  w.document.close();
-}
-
-function onPrint(ev) {
-  const id = ev.currentTarget.dataset.id;
-  const row = DATA.find(r => String(r.id) === String(id));
-  if (!row) return;
-  const html = buildPrintHtml(row);
-  const w = window.open('', '_blank', 'width=800,height=600');
-  w.document.write(html);
-  w.document.close();
-  setTimeout(()=>w.print(), 300);
-}
-
-function buildViewHtml(row) {
-  let s = `<div style="font-family:system-ui,Arial;padding:20px;">`;
-  s += `<h2 style="margin-bottom:8px;">Result - ${escapeHtml(row.name || '')} (${escapeHtml(row.roll || '')})</h2>`;
-  s += `<table style="border-collapse:collapse;width:100%;">`;
-  SUBJECTS.forEach(sub => {
-    s += `<tr><td style="padding:6px;border:1px solid #ddd;width:60%">${escapeHtml(sub)}</td><td style="padding:6px;border:1px solid #ddd">${escapeHtml(String(row[sub]||''))}</td></tr>`;
-  });
-  s += `<tr><td style="padding:6px;border:1px solid #ddd"><strong>Total</strong></td><td style="padding:6px;border:1px solid #ddd">${escapeHtml(String(row.total||''))}</td></tr>`;
-  s += `<tr><td style="padding:6px;border:1px solid #ddd"><strong>GPA</strong></td><td style="padding:6px;border:1px solid #ddd">${escapeHtml(String(row.gpa||''))}</td></tr>`;
-  s += `<tr><td style="padding:6px;border:1px solid #ddd"><strong>Grade</strong></td><td style="padding:6px;border:1px solid #ddd">${escapeHtml(String(row.grade||''))}</td></tr>`;
-  s += `<tr><td style="padding:6px;border:1px solid #ddd"><strong>Merit</strong></td><td style="padding:6px;border:1px solid #ddd">${escapeHtml(String(row.merit||''))}</td></tr>`;
-  s += `</table></div>`;
-  return s;
-}
-
-function buildPrintHtml(row) {
-  return `<!doctype html><html><head><meta charset="utf-8"><title>Print</title>
-  <style>body{font-family:Arial,Helvetica,sans-serif;padding:20px}table{border-collapse:collapse;width:100%}td,th{border:1px solid #444;padding:8px}</style>
-  </head><body>` + buildViewHtml(row) + `</body></html>`;
-}
-
-/* ---------- Search Clear Handler ---------- */
-searchInput.addEventListener('input', () => {
-  if (searchInput.value.trim()) {
-    clearBtn.classList.remove('hidden');
-  } else {
-    clearBtn.classList.add('hidden');
   }
-  renderTable(DATA);
-});
-clearBtn.addEventListener('click', () => {
-  searchInput.value = '';
-  clearBtn.classList.add('hidden');
-  renderTable(DATA);
-});
 
-/* ---------- Utilities ---------- */
-function escapeHtml(str) {
-  if (str === null || str === undefined) return '';
-  return String(str)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#39;');
-}
+  // View modal
+  function openView(row) {
+    form.innerHTML = '';
+    const grid = document.createElement('div');
+    grid.className = 'grid grid-cols-1 gap-2';
+    state.headers.forEach(h => {
+      const p = document.createElement('p');
+      p.className = 'text-sm';
+      p.innerHTML = '<strong>' + h + ':</strong> ' + (row[h] || '');
+      grid.appendChild(p);
+    });
+    form.appendChild(grid);
+    saveBtn.style.display = 'none';
+    openModal('View Result');
+  }
 
-/* ---------- Init ---------- */
-async function init() {
-  await fetchAll();
-}
-init();
-</script>
+  // Edit modal
+  function openEdit(row) {
+    buildForm(row);
+    saveBtn.style.display = '';
+    openModal('Edit Result');
+  }
+
+  // Save handler (add or edit)
+  saveBtn.addEventListener('click', async () => {
+    const fd = new FormData(form);
+    const obj = {};
+    for (const [k,v] of fd.entries()) obj[k] = v;
+    const action = obj._row ? 'edit' : 'add';
+    obj.action = action;
+    // convert numeric fields
+    state.headers.forEach(h => {
+      if (!['Name','Roll','Total','Grade','Point','Merit'].includes(h) && obj[h] !== undefined) {
+        obj[h] = obj[h] === '' ? 0 : Number(obj[h]);
+      }
+    });
+    const res = await fetch(API_BASE, {
+      method: 'POST',
+      body: JSON.stringify(obj),
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+    await fetchRows();
+    closeModalFunc();
+  });
+
+  cancelBtn.addEventListener('click', () => {
+    closeModalFunc();
+  });
+  closeModal.addEventListener('click', () => {
+    closeModalFunc();
+  });
+
+  // Delete
+  async function doDelete(row) {
+    if (!confirm('Delete result for roll ' + row.Roll + ' ?')) return;
+    const url = API_BASE + '?action=delete&row=' + encodeURIComponent(row._row);
+    await fetch(url, { method: 'GET' });
+    await fetchRows();
+  }
+
+  // Print — open a new window with printable content
+  function doPrint(row) {
+    const win = window.open('', '_blank', 'width=800,height=600');
+    const html = renderPrintableHTML(row);
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    win.print();
+  }
+
+  function renderPrintableHTML(row) {
+    const title = 'Result — ' + (row.Name || '') + ' (' + (row.Roll || '') + ')';
+    const rowsHtml = state.headers.map(h => {
+      if (['Total','Grade','Point','Merit'].includes(h)) return `<tr><td style="padding:6px;border:1px solid #ddd"><strong>${h}</strong></td><td style="padding:6px;border:1px solid #ddd">${row[h]||''}</td></tr>`;
+      return `<tr><td style="padding:6px;border:1px solid #ddd">${h}</td><td style="padding:6px;border:1px solid #ddd">${row[h]||''}</td></tr>`;
+    }).join('');
+    return `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title><style>body{font-family:Arial;padding:20px}table{border-collapse:collapse;width:100%}</style></head><body><h2>${title}</h2><table>${rowsHtml}</table></body></html>`;
+  }
+
+  // Search behavior: client enters text; on input, call search API and update table; cross icon clears.
+  let searchTimer = null;
+  searchInput.addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(runSearch, 250);
+  });
+
+  clearSearchBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    runSearch();
+  });
+
+  async function runSearch() {
+    const q = searchInput.value.trim();
+    if (!q) {
+      renderRows(state.rows);
+      return;
+    }
+    const url = API_BASE + '?action=search&roll=' + encodeURIComponent(q);
+    const r = await fetch(url);
+    const data = await r.json();
+    renderRows(data.rows || []);
+  }
+
+  // init
+  (async function init(){
+    renderHeader();
+    await fetchRows();
+  })();
+
+  </script>
 </body>
 </html>
