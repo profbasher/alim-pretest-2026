@@ -1,8 +1,3 @@
-<!--
-  index.html
-  Fully responsive, mobile-friendly single-file web page.
-  Replace GAS_WEBAPP_URL with your deployed Apps Script web app URL.
--->
 <!doctype html>
 <html lang="en">
 <head>
@@ -11,80 +6,75 @@
   <title>College Result Store</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-slate-50 min-h-screen text-slate-800">
   <div class="max-w-6xl mx-auto p-4">
-    <header class="flex items-center justify-between py-4">
-      <h1 class="text-2xl sm:text-3xl font-semibold">College Result Store</h1>
-      <div class="hidden sm:flex space-x-2">
-        <input id="searchInput" type="search" placeholder="Search by roll..." class="w-72 px-3 py-2 border rounded-md focus:outline-none" />
-        <button id="clearSearch" title="Clear" class="p-2 bg-red-50 rounded-md hidden">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    <header class="flex items-center justify-between mb-4">
+      <h1 class="text-2xl font-semibold">College Result Store</h1>
+      <div class="w-64 relative">
+        <input id="searchRoll" type="text" placeholder="Search by roll" class="w-full pl-4 pr-10 py-2 rounded-lg border focus:outline-none" />
+        <button id="clearSearch" class="absolute right-1 top-1/2 -translate-y-1/2 bg-transparent p-1 rounded-full" title="Clear">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9.293l4.146-4.147a1 1 0 111.415 1.415L11.414 10.707l4.147 4.146a1 1 0 01-1.415 1.415L10 12.121l-4.146 4.147a1 1 0 01-1.415-1.415L8.586 10.707 4.439 6.561A1 1 0 015.854 5.146L10 9.293z" clip-rule="evenodd"/></svg>
         </button>
       </div>
     </header>
 
     <main class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <!-- Form -->
-      <section class="lg:col-span-1 bg-white p-4 rounded-lg shadow-sm">
-        <h2 class="text-lg font-medium mb-2">Add / Edit Result</h2>
-        <form id="resultForm" class="space-y-3">
-          <input type="hidden" id="rowIndex" />
+      <section class="lg:col-span-1 bg-white p-4 rounded-lg shadow">
+        <h2 class="text-lg font-medium mb-2">Add / Edit Student Result</h2>
+        <form id="resultForm" class="space-y-2">
+          <input type="hidden" id="record_id" />
+          <input type="hidden" id="_rowNumber" />
           <div>
             <label class="block text-sm">Name</label>
-            <input id="name" required class="w-full px-3 py-2 border rounded" />
+            <input id="name" class="w-full border rounded px-2 py-1" required />
           </div>
           <div>
             <label class="block text-sm">Roll</label>
-            <input id="roll" required class="w-full px-3 py-2 border rounded" />
+            <input id="roll" class="w-full border rounded px-2 py-1" required />
           </div>
 
-          <!-- Subjects inputs (compact) -->
           <div class="grid grid-cols-2 gap-2">
-            <div><label class="text-sm">Quran Mazid</label><input id="Quran Mazid" class="w-full px-2 py-1 border rounded" /></div>
-            <div><label class="text-sm">Hadis</label><input id="Hadis" class="w-full px-2 py-1 border rounded" /></div>
-            <div><label class="text-sm">Fikah 1</label><input id="Fikah 1" class="w-full px-2 py-1 border rounded" /></div>
-            <div><label class="text-sm">Fikah 2/ Physics 2</label><input id="Fikah 2/ Physics 2" class="w-full px-2 py-1 border rounded" /></div>
-            <div><label class="text-sm">Bengali 1</label><input id="Bengali 1" class="w-full px-2 py-1 border rounded" /></div>
-            <div><label class="text-sm">Bengali 2</label><input id="Bengali 2" class="w-full px-2 py-1 border rounded" /></div>
-            <div><label class="text-sm">English 1</label><input id="English 1" class="w-full px-2 py-1 border rounded" /></div>
-            <div><label class="text-sm">English 2</label><input id="English 2" class="w-full px-2 py-1 border rounded" /></div>
-            <div><label class="text-sm">Arabic 1</label><input id="Arabic 1" class="w-full px-2 py-1 border rounded" /></div>
-            <div><label class="text-sm">Arabic 2/Biology 2</label><input id="Arabic 2/Biology 2" class="w-full px-2 py-1 border rounded" /></div>
-            <div><label class="text-sm">ICT</label><input id="ICT" class="w-full px-2 py-1 border rounded" /></div>
-            <div><label class="text-sm">Camistry 2/History</label><input id="Camistry 2/History" class="w-full px-2 py-1 border rounded" /></div>
-            <div><label class="text-sm">Mantik</label><input id="Mantik" class="w-full px-2 py-1 border rounded" /></div>
-            <div><label class="text-sm">Civics/Higher Math</label><input id="Civics/Higher Math" class="w-full px-2 py-1 border rounded" /></div>
+            <div><label class="block text-sm">Quran Mazid</label><input id="Quran Mazid" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
+            <div><label class="block text-sm">Hadis</label><input id="Hadis" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
+            <div><label class="block text-sm">Fikah 1</label><input id="Fikah 1" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
+            <div><label class="block text-sm">Fikah 2/ Physics 2</label><input id="Fikah 2/ Physics 2" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
+            <div><label class="block text-sm">Bengali 1</label><input id="Bengali 1" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
+            <div><label class="block text-sm">Bengali 2</label><input id="Bengali 2" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
+            <div><label class="block text-sm">English 1</label><input id="English 1" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
+            <div><label class="block text-sm">English 2</label><input id="English 2" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
+            <div><label class="block text-sm">Arabic 1</label><input id="Arabic 1" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
+            <div><label class="block text-sm">Arabic 2/Biology 2</label><input id="Arabic 2/Biology 2" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
+            <div><label class="block text-sm">ICT</label><input id="ICT" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
+            <div><label class="block text-sm">Camistry 2/History</label><input id="Camistry 2/History" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
+            <div><label class="block text-sm">Mantik</label><input id="Mantik" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
+            <div><label class="block text-sm">Civics/Higher Math</label><input id="Civics/Higher Math" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
           </div>
 
-          <div class="flex space-x-2 pt-2">
-            <button type="submit" id="saveBtn" class="flex-1 px-3 py-2 bg-blue-600 text-white rounded">Save</button>
-            <button type="button" id="resetBtn" class="flex-1 px-3 py-2 border rounded">Reset</button>
+          <div class="flex gap-2 mt-2">
+            <button type="submit" id="saveBtn" class="flex-1 bg-blue-600 text-white py-2 rounded">Save</button>
+            <button type="button" id="resetBtn" class="flex-1 bg-gray-200 py-2 rounded">Reset</button>
           </div>
         </form>
       </section>
 
-      <!-- Table -->
-      <section class="lg:col-span-2 bg-white p-4 rounded-lg shadow-sm overflow-x-auto">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-lg font-medium">Results</h2>
-          <div class="flex items-center sm:hidden">
-            <input id="searchInputMobile" type="search" placeholder="Search by roll..." class="w-48 px-3 py-2 border rounded-md focus:outline-none" />
-            <button id="clearSearchMobile" title="Clear" class="p-2 bg-red-50 rounded-md hidden">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-          </div>
-        </div>
-
-        <div class="overflow-auto">
-          <table id="resultsTable" class="min-w-full text-sm">
-            <thead class="bg-gray-100">
-              <tr id="tableHead" class="text-left">
-                <!-- head generated by JS -->
+      <section class="lg:col-span-2 bg-white p-4 rounded-lg shadow overflow-x-auto">
+        <h2 class="text-lg font-medium mb-2">Results</h2>
+        <div id="tableWrap" class="overflow-x-auto">
+          <table id="resultTable" class="min-w-full divide-y divide-slate-200">
+            <thead class="bg-slate-50">
+              <tr>
+                <th class="px-2 py-2 text-left text-sm">#</th>
+                <th class="px-2 py-2 text-left text-sm">Name</th>
+                <th class="px-2 py-2 text-left text-sm">Roll</th>
+                <th class="px-2 py-2 text-left text-sm">Subjects (Total)</th>
+                <th class="px-2 py-2 text-left text-sm">Percentage</th>
+                <th class="px-2 py-2 text-left text-sm">Grade</th>
+                <th class="px-2 py-2 text-left text-sm">GPA</th>
+                <th class="px-2 py-2 text-left text-sm">Merit</th>
+                <th class="px-2 py-2 text-left text-sm">Actions</th>
               </tr>
             </thead>
-            <tbody id="tableBody" class="divide-y">
-              <!-- rows generated by JS -->
-            </tbody>
+            <tbody id="tbody" class="bg-white"></tbody>
           </table>
         </div>
       </section>
@@ -92,306 +82,306 @@
   </div>
 
 <script>
-/* ------------------------
-   Client-side JavaScript
---------------------------- */
+/*
+ * Frontend JS
+ *
+ * NOTE: Replace SCRIPT_URL with your deployed Google Apps Script Web App URL.
+ */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz7ttnkIifR6VV_bYhSj24DVCRl6AGlU0fvxjhjC_07KbSH2IusAlugF69sfv4ja2L1/exec"; // <-- replace after deploying Apps Script
 
-const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw37Phap-Q-qeS5j_23zqb2Yeutpd6SGG7SRjnsUy7DrnJq8PmJoibGEDx00SxvCUD_/exec"; // <-- replace with your deployed Apps Script web app URL
-
-// Headers must match the Google Sheet first row exactly (case-sensitive)
-const SHEET_HEADERS = [
-  "name","roll",
+const SUBJECTS = [
   "Quran Mazid","Hadis","Fikah 1","Fikah 2/ Physics 2","Bengali 1","Bengali 2",
   "English 1","English 2","Arabic 1","Arabic 2/Biology 2","ICT","Camistry 2/History",
-  "Mantik","Civics/Higher Math",
-  "Total","Grade","Point","Merit"
+  "Mantik","Civics/Higher Math"
 ];
 
-let state = { rows: [] };
+const gradeConfig = [
+  {min:80, max:100, grade:"A+", point:5.0},
+  {min:70, max:79, grade:"A", point:4.0},
+  {min:60, max:69, grade:"A-", point:3.5},
+  {min:50, max:59, grade:"B", point:3.0},
+  {min:40, max:49, grade:"C", point:2.0},
+  {min:33, max:39, grade:"D", point:1.0},
+  {min:0,  max:32, grade:"F", point:0.0}
+];
 
-const gradeScale = (num) => {
-  num = Number(num);
-  if (isNaN(num)) return {grade:"F", point:0};
-  if (num >= 80) return {grade:"A+", point:5.0};
-  if (num >= 70) return {grade:"A", point:4.0};
-  if (num >= 60) return {grade:"A-", point:3.5};
-  if (num >= 50) return {grade:"B", point:3.0};
-  if (num >= 40) return {grade:"C", point:2.0};
-  if (num >= 33) return {grade:"D", point:1.0};
+function num(v){ return v===""||v===null||v===undefined ? 0 : Number(v); }
+function computeGradeForScore(score){
+  for(const g of gradeConfig){
+    if(score >= g.min && score <= g.max) return {grade: g.grade, point: g.point};
+  }
   return {grade:"F", point:0.0};
-};
-
-function calculateResult(record) {
-  // Subjects are the ones from index 2 to 15 in SHEET_HEADERS
-  const subjectKeys = SHEET_HEADERS.slice(2, 16);
-  let totalMarks = 0;
-  let countSubjects = 0;
-  let totalPoints = 0;
-  subjectKeys.forEach(k => {
-    const v = Number(record[k]) || 0;
-    totalMarks += v;
-    countSubjects++;
-    const gp = gradeScale(v).point;
-    totalPoints += gp;
-  });
-  const averagePercent = countSubjects ? (totalMarks / countSubjects) : 0;
-  const finalGradeObj = gradeScale(averagePercent);
-  const finalPoint = countSubjects ? (totalPoints / countSubjects) : 0;
-  record["Total"] = Math.round(averagePercent * 100) / 100;
-  record["Grade"] = finalGradeObj.grade;
-  record["Point"] = Math.round(finalPoint * 100) / 100;
-  record["Merit"] = totalMarks; // storing sum of marks as merit (can be adjusted)
-  return record;
 }
 
-/* --- DOM refs --- */
-const tableHead = document.getElementById("tableHead");
-const tableBody = document.getElementById("tableBody");
-const resultForm = document.getElementById("resultForm");
-const saveBtn = document.getElementById("saveBtn");
-const resetBtn = document.getElementById("resetBtn");
-const searchInput = document.getElementById("searchInput");
-const searchInputMobile = document.getElementById("searchInputMobile");
-const clearSearch = document.getElementById("clearSearch");
-const clearSearchMobile = document.getElementById("clearSearchMobile");
-
-/* Build table header */
-function buildTableHeader() {
-  tableHead.innerHTML = "";
-  SHEET_HEADERS.forEach(h => {
-    const th = document.createElement("th");
-    th.className = "px-3 py-2";
-    th.textContent = h;
-    tableHead.appendChild(th);
-  });
-  const actionTh = document.createElement("th");
-  actionTh.className = "px-3 py-2";
-  actionTh.textContent = "Actions";
-  tableHead.appendChild(actionTh);
+function computeResult(record){
+  let total = 0;
+  let count = 0;
+  let points = [];
+  for(const s of SUBJECTS){
+    const sc = num(record[s]);
+    total += sc;
+    count++;
+    const gp = computeGradeForScore(sc).point;
+    points.push(gp);
+  }
+  const percentage = count ? (total / (count * 100) * 100) : 0;
+  // Final GPA: average of grade points
+  const gpa = points.length ? (points.reduce((a,b)=>a+b,0)/points.length) : 0;
+  const grade = computeGradeForScore(Math.round(percentage)).grade;
+  const merit = Math.round(percentage * 100)/100;
+  return {
+    Total: total,
+    Percentage: Math.round(percentage * 100)/100,
+    Grade: grade,
+    Point: Math.round(gpa * 100)/100,
+    Merit: merit
+  };
 }
 
-/* Render rows */
-function renderRows(rows) {
-  tableBody.innerHTML = "";
-  rows.forEach(r => {
-    const tr = document.createElement("tr");
-    SHEET_HEADERS.forEach(h => {
-      const td = document.createElement("td");
-      td.className = "px-3 py-2 align-top";
-      td.textContent = r[h] !== undefined ? r[h] : "";
-      tr.appendChild(td);
-    });
-    const tdAction = document.createElement("td");
-    tdAction.className = "px-3 py-2 space-x-1";
+/* UI helpers */
+const form = document.getElementById('resultForm');
+const tbody = document.getElementById('tbody');
+const searchInput = document.getElementById('searchRoll');
+const clearBtn = document.getElementById('clearSearch');
+const resetBtn = document.getElementById('resetBtn');
+const saveBtn = document.getElementById('saveBtn');
 
-    const viewBtn = createIconButton("View", () => onView(r), "bg-green-50 text-green-700");
-    const editBtn = createIconButton("Edit", () => onEdit(r), "bg-yellow-50 text-yellow-700");
-    const delBtn = createIconButton("Delete", () => onDelete(r), "bg-red-50 text-red-700");
-    const printBtn = createIconButton("Print", () => onPrint(r), "bg-blue-50 text-blue-700");
+function showMessage(msg){ alert(msg); }
 
-    tdAction.appendChild(viewBtn);
-    tdAction.appendChild(editBtn);
-    tdAction.appendChild(delBtn);
-    tdAction.appendChild(printBtn);
-    tr.appendChild(tdAction);
+/* Build form inputs for subjects (already present in HTML as individual inputs with IDs matching subject names) */
 
-    tableBody.appendChild(tr);
-  });
-}
-
-function createIconButton(title, cb, extraClass="") {
-  const btn = document.createElement("button");
-  btn.title = title;
-  btn.className = `px-2 py-1 mr-1 rounded text-xs ${extraClass}`;
-  btn.textContent = title;
-  btn.addEventListener("click", cb);
-  return btn;
-}
-
-/* Fetch all rows from backend */
-async function fetchAll() {
+/* Load all records */
+async function fetchAll(){
+  if(!SCRIPT_URL) return [];
   try {
-    const res = await fetch(GAS_WEBAPP_URL + "?action=get-all");
+    const res = await fetch(`${SCRIPT_URL}?action=list`);
     const json = await res.json();
-    if (json.status === "ok") {
-      state.rows = json.data.map(r => {
-        // ensure keys exist for all headers
-        SHEET_HEADERS.forEach(h => { if (!(h in r)) r[h] = ""; });
-        return r;
-      });
-      renderRows(state.rows);
-    }
-  } catch (err) {
+    if(json.status === "success") return json.data;
+    return [];
+  } catch (err){
     console.error(err);
+    return [];
   }
 }
 
-/* Form handlers */
-resultForm.addEventListener("submit", async function(e) {
-  e.preventDefault();
-  const rec = {};
-  SHEET_HEADERS.forEach(h => {
-    rec[h] = document.getElementById(h) ? document.getElementById(h).value.trim() : "";
-  });
-  // name & roll
-  rec["name"] = document.getElementById("name").value.trim();
-  rec["roll"] = document.getElementById("roll").value.trim();
-
-  calculateResult(rec);
-
-  const rowIndexVal = document.getElementById("rowIndex").value;
-  if (rowIndexVal) {
-    // update
-    await postAction("update", { rowIndex: parseInt(rowIndexVal, 10), record: rec });
-    // update local state optimistically
-    const idx = state.rows.findIndex(r => r._rowIndex == rowIndexVal);
-    if (idx >= 0) {
-      state.rows[idx] = Object.assign({}, rec, {_rowIndex: parseInt(rowIndexVal,10)});
-    }
-  } else {
-    // insert
-    await postAction("new-entry", { record: rec });
-    // reload to get rowIndex
-    await fetchAll();
-  }
-  resetForm();
-  renderRows(state.rows);
-});
-
-/* Reset form */
-function resetForm() {
-  resultForm.reset();
-  document.getElementById("rowIndex").value = "";
-  window.scrollTo({top:0, behavior:"smooth"});
-}
-
-/* Edit */
-function onEdit(r) {
-  // populate form
-  SHEET_HEADERS.forEach(h => {
-    const el = document.getElementById(h);
-    if (el) el.value = r[h] !== undefined ? r[h] : "";
-  });
-  document.getElementById("name").value = r["name"] || "";
-  document.getElementById("roll").value = r["roll"] || "";
-  document.getElementById("rowIndex").value = r._rowIndex || "";
-  window.scrollTo({top:0, behavior:"smooth"});
-}
-
-/* View */
-function onView(r) {
-  const win = window.open("", "_blank", "width=800,height=600");
-  const html = buildPrintHTML(r, {forPrint:false});
-  win.document.write(html);
-  win.document.close();
-}
-
-/* Print */
-function onPrint(r) {
-  const win = window.open("", "_blank", "width=800,height=600");
-  const html = buildPrintHTML(r, {forPrint:true});
-  win.document.write(html);
-  win.document.close();
-  win.focus();
-  setTimeout(()=>{ win.print(); }, 300);
-}
-
-/* Delete */
-async function onDelete(r) {
-  if (!confirm("Delete this record?")) return;
-  await postAction("delete", { rowIndex: r._rowIndex });
-  // remove locally
-  state.rows = state.rows.filter(x => x._rowIndex !== r._rowIndex);
-  renderRows(state.rows);
-}
-
-/* Build printable HTML */
-function buildPrintHTML(r, opts={forPrint:false}) {
-  const subjectKeys = SHEET_HEADERS.slice(2,16);
-  let rowsHtml = "";
-  subjectKeys.forEach(k => {
-    rowsHtml += `<tr><td style="padding:6px;border:1px solid #ddd">${k}</td><td style="padding:6px;border:1px solid #ddd">${r[k]||""}</td></tr>`;
-  });
-  const html = `
-  <html>
-  <head>
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Result - ${r.name || ""}</title>
-    <style>
-      body{font-family:system-ui,Segoe UI,Roboto,Arial; padding:20px}
-      .card{max-width:750px;margin:0 auto}
-      table{border-collapse:collapse;width:100%}
-    </style>
-  </head>
-  <body>
-    <div class="card">
-      <h2>Result</h2>
-      <p><strong>Name:</strong> ${r.name || ""} &nbsp;&nbsp; <strong>Roll:</strong> ${r.roll || ""}</p>
-      <table>
-        <thead><tr><th style="text-align:left;padding:6px;border:1px solid #ddd">Subject</th><th style="text-align:left;padding:6px;border:1px solid #ddd">Marks</th></tr></thead>
-        <tbody>${rowsHtml}</tbody>
-      </table>
-      <p><strong>Total (avg %):</strong> ${r["Total"] || ""} &nbsp; <strong>Grade:</strong> ${r["Grade"] || ""} &nbsp; <strong>Point:</strong> ${r["Point"] || ""} &nbsp; <strong>Merit:</strong> ${r["Merit"] || ""}</p>
-    </div>
-  </body>
-  </html>`;
-  return html;
-}
-
-/* POST to backend */
-async function postAction(action, payload) {
+/* Fetch by roll */
+async function fetchByRoll(roll){
+  if(!SCRIPT_URL) return [];
   try {
-    const body = { action, ...payload };
-    const res = await fetch(GAS_WEBAPP_URL, {
-      method: "POST",
-      headers: { "Content-Type":"application/json" },
-      body: JSON.stringify(body)
-    });
-    return await res.json();
-  } catch (err) {
+    const res = await fetch(`${SCRIPT_URL}?action=get&roll=${encodeURIComponent(roll)}`);
+    const json = await res.json();
+    if(json.status === "success") return json.data;
+    return [];
+  } catch (err){
     console.error(err);
+    return [];
   }
 }
 
-/* Search (by roll) */
-function applySearch(term) {
-  const t = String(term || "").trim().toLowerCase();
-  if (!t) {
-    renderRows(state.rows);
-    return;
-  }
-  const filtered = state.rows.filter(r => String(r.roll || "").toLowerCase().includes(t));
-  renderRows(filtered);
+function renderTable(records){
+  tbody.innerHTML = "";
+  records.forEach((r,i) => {
+    const result = computeResult(r);
+    const tr = document.createElement('tr');
+    tr.className = (i%2===0) ? "bg-white" : "bg-slate-50";
+    tr.innerHTML = `
+      <td class="px-2 py-2 text-sm">${i+1}</td>
+      <td class="px-2 py-2 text-sm">${escapeHtml(r.name||"")}</td>
+      <td class="px-2 py-2 text-sm">${escapeHtml(r.roll||"")}</td>
+      <td class="px-2 py-2 text-sm">
+        ${SUBJECTS.map(s=>`<div class="text-xs">${escapeHtml(s)}: ${escapeHtml(String(r[s]||"0"))}</div>`).join('')}
+        <div class="mt-1 text-sm font-medium">Total: ${result.Total}</div>
+      </td>
+      <td class="px-2 py-2 text-sm">${result.Percentage}%</td>
+      <td class="px-2 py-2 text-sm">${result.Grade}</td>
+      <td class="px-2 py-2 text-sm">${result.Point}</td>
+      <td class="px-2 py-2 text-sm">${result.Merit}</td>
+      <td class="px-2 py-2 text-sm">
+        <div class="flex gap-1">
+          <button data-row='${JSON.stringify(r)}' class="editBtn px-2 py-1 bg-yellow-300 rounded text-xs">Edit</button>
+          <button data-id='${escapeAttr(r.id||"")}' data-rownum='${r._rowNumber||""}' class="deleteBtn px-2 py-1 bg-red-500 text-white rounded text-xs">Delete</button>
+          <button data-row='${JSON.stringify(r)}' class="viewBtn px-2 py-1 bg-green-500 text-white rounded text-xs">View</button>
+          <button data-row='${JSON.stringify(r)}' class="printBtn px-2 py-1 bg-blue-600 text-white rounded text-xs">Print</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // attach actions
+  document.querySelectorAll('.editBtn').forEach(b=>{
+    b.addEventListener('click', (ev)=>{
+      const row = JSON.parse(b.getAttribute('data-row'));
+      populateFormForEdit(row);
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+  document.querySelectorAll('.deleteBtn').forEach(b=>{
+    b.addEventListener('click', async ()=>{
+      const id = b.getAttribute('data-id');
+      const rownum = b.getAttribute('data-rownum');
+      if(!confirm('Delete this record?')) return;
+      await postAction('delete',{ record: { id, _rowNumber: rownum } });
+      await reload();
+    });
+  });
+  document.querySelectorAll('.viewBtn').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const row = JSON.parse(b.getAttribute('data-row'));
+      openViewModal(row);
+    });
+  });
+  document.querySelectorAll('.printBtn').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const row = JSON.parse(b.getAttribute('data-row'));
+      printRecord(row);
+    });
+  });
 }
 
-/* Wire up search inputs (no button) */
-searchInput.addEventListener("input", (e) => {
-  const v = e.target.value;
-  applySearch(v);
-  clearSearch.style.display = v ? "inline-block" : "none";
+function populateFormForEdit(row){
+  document.getElementById('record_id').value = row.id || "";
+  document.getElementById('_rowNumber').value = row._rowNumber || "";
+  document.getElementById('name').value = row.name || "";
+  document.getElementById('roll').value = row.roll || "";
+  SUBJECTS.forEach(s=>{
+    const el = document.getElementById(s);
+    if(el) el.value = row[s] || "";
+  });
+}
+
+function clearForm(){
+  document.getElementById('record_id').value = "";
+  document.getElementById('_rowNumber').value = "";
+  form.reset();
+  SUBJECTS.forEach(s=>{
+    const el = document.getElementById(s);
+    if(el) el.value = "";
+  });
+}
+
+/* Post action to backend */
+async function postAction(action, payload){
+  if(!SCRIPT_URL) { showMessage('Missing SCRIPT_URL'); return; }
+  const body = JSON.stringify(Object.assign({action}, payload));
+  const res = await fetch(SCRIPT_URL, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body
+  });
+  return await res.json();
+}
+
+/* Handle form submit */
+form.addEventListener('submit', async (ev)=>{
+  ev.preventDefault();
+  const id = document.getElementById('record_id').value || '';
+  const rowNumber = document.getElementById('_rowNumber').value || '';
+  const record = {};
+  if(id) record.id = id;
+  if(rowNumber) record._rowNumber = rowNumber;
+  record.name = document.getElementById('name').value.trim();
+  record.roll = document.getElementById('roll').value.trim();
+  SUBJECTS.forEach(s=>{
+    const v = document.getElementById(s).value;
+    record[s] = v === "" ? "" : Number(v);
+  });
+  // compute summary fields
+  const summary = computeResult(record);
+  record.Total = summary.Total;
+  record.Percentage = summary.Percentage;
+  record.Grade = summary.Grade;
+  record.Point = summary.Point;
+  record.Merit = summary.Merit;
+  record.Timestamp = new Date().toLocaleString();
+
+  const action = id ? 'update' : 'new-entry';
+  const resp = await postAction(action, { record });
+  if(resp && resp.status === 'success'){
+    showMessage('Saved.');
+    clearForm();
+    await reload();
+  } else {
+    showMessage('Save failed.');
+    console.error(resp);
+  }
 });
-searchInputMobile.addEventListener("input", (e) => {
-  const v = e.target.value;
-  applySearch(v);
-  clearSearchMobile.style.display = v ? "inline-block" : "none";
+
+resetBtn.addEventListener('click', (e)=>{
+  e.preventDefault();
+  clearForm();
 });
-clearSearch.addEventListener("click", () => {
+
+/* Search */
+let searchTimeout = null;
+searchInput.addEventListener('input', async (e)=>{
+  const v = e.target.value.trim();
+  if(searchTimeout) clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(async ()=>{
+    if(!v){
+      await reload();
+      return;
+    }
+    const rows = await fetchByRoll(v);
+    renderTable(rows);
+  }, 250);
+});
+clearBtn.addEventListener('click', ()=>{
   searchInput.value = "";
-  applySearch("");
-  clearSearch.style.display = "none";
-});
-clearSearchMobile.addEventListener("click", () => {
-  searchInputMobile.value = "";
-  applySearch("");
-  clearSearchMobile.style.display = "none";
+  reload();
 });
 
-/* reset button */
-resetBtn.addEventListener("click", resetForm);
+/* Helpers: view modal & print */
+function openViewModal(row){
+  const win = window.open('', '_blank', 'width=800,height=600');
+  const r = computeResult(row);
+  win.document.write('<html><head><title>View Result</title><meta name="viewport" content="width=device-width,initial-scale=1" /></head><body style="font-family:Arial;padding:16px">');
+  win.document.write(`<h2>${escapeHtml(row.name||'')}</h2><p>Roll: ${escapeHtml(row.roll||'')}</p>`);
+  win.document.write('<table border="1" cellpadding="6" style="border-collapse:collapse">');
+  SUBJECTS.forEach(s=>{
+    win.document.write(`<tr><td>${escapeHtml(s)}</td><td>${escapeHtml(String(row[s]||'0'))}</td></tr>`);
+  });
+  win.document.write(`<tr><td><strong>Total</strong></td><td>${r.Total}</td></tr>`);
+  win.document.write(`<tr><td><strong>Percentage</strong></td><td>${r.Percentage}%</td></tr>`);
+  win.document.write(`<tr><td><strong>Grade</strong></td><td>${r.Grade}</td></tr>`);
+  win.document.write(`<tr><td><strong>GPA</strong></td><td>${r.Point}</td></tr>`);
+  win.document.write('</table>');
+  win.document.write('</body></html>');
+  win.document.close();
+}
 
-/* Initial */
-buildTableHeader();
-fetchAll();
+function printRecord(row){
+  const r = computeResult(row);
+  const w = window.open('', '_blank', 'width=800,height=600');
+  w.document.write('<html><head><title>Print Result</title><meta name="viewport" content="width=device-width,initial-scale=1" /></head><body style="font-family:Arial;padding:16px">');
+  w.document.write(`<h2>${escapeHtml(row.name||'')}</h2><p>Roll: ${escapeHtml(row.roll||'')}</p>`);
+  w.document.write('<table border="1" cellpadding="6" style="border-collapse:collapse;width:100%">');
+  SUBJECTS.forEach(s=>{
+    w.document.write(`<tr><td>${escapeHtml(s)}</td><td>${escapeHtml(String(row[s]||'0'))}</td></tr>`);
+  });
+  w.document.write(`<tr><td><strong>Total</strong></td><td>${r.Total}</td></tr>`);
+  w.document.write(`<tr><td><strong>Percentage</strong></td><td>${r.Percentage}%</td></tr>`);
+  w.document.write(`<tr><td><strong>Grade</strong></td><td>${r.Grade}</td></tr>`);
+  w.document.write(`<tr><td><strong>GPA</strong></td><td>${r.Point}</td></tr>`);
+  w.document.write('</table>');
+  w.document.write('<script>window.print();</script>');
+  w.document.write('</body></html>');
+  w.document.close();
+}
+
+/* escape helpers */
+function escapeHtml(str){
+  if(str===null||str===undefined) return '';
+  return String(str).replace(/[&<>"'`=\/]/g, function(s){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','/':'&#47;','`':'&#96;','=':'&#61;'})[s]; });
+}
+function escapeAttr(s){ return (s||'').replace(/"/g,'&quot;'); }
+
+/* initial load */
+async function reload(){
+  const rows = await fetchAll();
+  renderTable(rows || []);
+}
+reload();
 </script>
 </body>
 </html>
