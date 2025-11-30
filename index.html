@@ -1,3 +1,4 @@
+<!-- index.html - Ready to host on GitHub Pages -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -5,383 +6,371 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>College Result Store</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @media print {
+      body * { visibility: hidden; }
+      #print-area, #print-area * { visibility: visible; }
+      #print-area { position: absolute; left: 0; top: 0; width: 100%; }
+      .no-print { display: none !important; }
+    }
+  </style>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800">
+<body class="bg-slate-50 text-slate-800 min-h-screen">
   <div class="max-w-6xl mx-auto p-4">
-    <header class="flex items-center justify-between mb-4">
+    <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
       <h1 class="text-2xl font-semibold">College Result Store</h1>
-      <div class="w-64 relative">
-        <input id="searchRoll" type="text" placeholder="Search by roll" class="w-full pl-4 pr-10 py-2 rounded-lg border focus:outline-none" />
-        <button id="clearSearch" class="absolute right-1 top-1/2 -translate-y-1/2 bg-transparent p-1 rounded-full" title="Clear">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9.293l4.146-4.147a1 1 0 111.415 1.415L11.414 10.707l4.147 4.146a1 1 0 01-1.415 1.415L10 12.121l-4.146 4.147a1 1 0 01-1.415-1.415L8.586 10.707 4.439 6.561A1 1 0 015.854 5.146L10 9.293z" clip-rule="evenodd"/></svg>
+      <div class="w-full sm:w-80 relative">
+        <input id="searchInput" class="w-full pl-10 pr-10 py-2 rounded-lg border focus:outline-none" placeholder="Search by roll" />
+        <button id="clearSearch" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hidden" aria-label="clear search">
+          ✕
         </button>
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
       </div>
     </header>
 
-    <main class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <section class="lg:col-span-1 bg-white p-4 rounded-lg shadow">
-        <h2 class="text-lg font-medium mb-2">Add / Edit Student Result</h2>
-        <form id="resultForm" class="space-y-2">
-          <input type="hidden" id="record_id" />
-          <input type="hidden" id="_rowNumber" />
+    <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <section class="lg:col-span-1 bg-white p-4 rounded-lg shadow-sm">
+        <form id="entryForm" class="space-y-3">
+          <input type="hidden" id="recordId" />
           <div>
             <label class="block text-sm">Name</label>
-            <input id="name" class="w-full border rounded px-2 py-1" required />
+            <input id="name" required class="w-full mt-1 p-2 border rounded" />
           </div>
           <div>
             <label class="block text-sm">Roll</label>
-            <input id="roll" class="w-full border rounded px-2 py-1" required />
+            <input id="roll" required class="w-full mt-1 p-2 border rounded" />
           </div>
 
           <div class="grid grid-cols-2 gap-2">
-            <div><label class="block text-sm">Quran Mazid</label><input id="Quran Mazid" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
-            <div><label class="block text-sm">Hadis</label><input id="Hadis" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
-            <div><label class="block text-sm">Fikah 1</label><input id="Fikah 1" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
-            <div><label class="block text-sm">Fikah 2/ Physics 2</label><input id="Fikah 2/ Physics 2" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
-            <div><label class="block text-sm">Bengali 1</label><input id="Bengali 1" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
-            <div><label class="block text-sm">Bengali 2</label><input id="Bengali 2" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
-            <div><label class="block text-sm">English 1</label><input id="English 1" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
-            <div><label class="block text-sm">English 2</label><input id="English 2" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
-            <div><label class="block text-sm">Arabic 1</label><input id="Arabic 1" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
-            <div><label class="block text-sm">Arabic 2/Biology 2</label><input id="Arabic 2/Biology 2" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
-            <div><label class="block text-sm">ICT</label><input id="ICT" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
-            <div><label class="block text-sm">Camistry 2/History</label><input id="Camistry 2/History" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
-            <div><label class="block text-sm">Mantik</label><input id="Mantik" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
-            <div><label class="block text-sm">Civics/Higher Math</label><input id="Civics/Higher Math" type="number" min="0" max="100" class="w-full border rounded px-2 py-1" /></div>
+            <template id="subjectTemplate">
+              <div>
+                <label class="block text-sm subject-label"></label>
+                <input class="mt-1 p-2 border rounded subject-input" type="number" min="0" max="100" />
+              </div>
+            </template>
           </div>
 
-          <div class="flex gap-2 mt-2">
-            <button type="submit" id="saveBtn" class="flex-1 bg-blue-600 text-white py-2 rounded">Save</button>
-            <button type="button" id="resetBtn" class="flex-1 bg-gray-200 py-2 rounded">Reset</button>
+          <div class="flex gap-2">
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+            <button id="resetBtn" type="button" class="px-4 py-2 rounded border">Reset</button>
           </div>
         </form>
       </section>
 
-      <section class="lg:col-span-2 bg-white p-4 rounded-lg shadow overflow-x-auto">
-        <h2 class="text-lg font-medium mb-2">Results</h2>
-        <div id="tableWrap" class="overflow-x-auto">
-          <table id="resultTable" class="min-w-full divide-y divide-slate-200">
-            <thead class="bg-slate-50">
-              <tr>
-                <th class="px-2 py-2 text-left text-sm">#</th>
-                <th class="px-2 py-2 text-left text-sm">Name</th>
-                <th class="px-2 py-2 text-left text-sm">Roll</th>
-                <th class="px-2 py-2 text-left text-sm">Subjects (Total)</th>
-                <th class="px-2 py-2 text-left text-sm">Percentage</th>
-                <th class="px-2 py-2 text-left text-sm">Grade</th>
-                <th class="px-2 py-2 text-left text-sm">GPA</th>
-                <th class="px-2 py-2 text-left text-sm">Merit</th>
-                <th class="px-2 py-2 text-left text-sm">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="tbody" class="bg-white"></tbody>
-          </table>
-        </div>
+      <section class="lg:col-span-2 bg-white p-4 rounded-lg shadow-sm overflow-x-auto">
+        <table class="min-w-full text-sm" id="resultsTable">
+          <thead>
+            <tr class="bg-slate-100 text-left">
+              <th class="p-2">Name</th>
+              <th class="p-2">Roll</th>
+              <th class="p-2">Total</th>
+              <th class="p-2">Grade</th>
+              <th class="p-2">Point</th>
+              <th class="p-2">Merit</th>
+              <th class="p-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="resultsBody"></tbody>
+        </table>
       </section>
     </main>
   </div>
 
-<script>
-/*
- * Frontend JS
- *
- * NOTE: Replace SCRIPT_URL with your deployed Google Apps Script Web App URL.
- */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz7ttnkIifR6VV_bYhSj24DVCRl6AGlU0fvxjhjC_07KbSH2IusAlugF69sfv4ja2L1/exec"; // <-- replace after deploying Apps Script
+  <!-- View / Print Modal -->
+  <div id="viewModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-3xl rounded-lg p-4 relative" id="print-area">
+      <button id="closeModal" class="absolute right-3 top-3 text-slate-600">✕</button>
+      <div id="modalContent"></div>
+      <div class="mt-4 flex gap-2 no-print">
+        <button id="printBtn" class="px-4 py-2 border rounded">Print</button>
+        <button id="modalClose2" class="px-4 py-2 border rounded">Close</button>
+      </div>
+    </div>
+  </div>
 
-const SUBJECTS = [
-  "Quran Mazid","Hadis","Fikah 1","Fikah 2/ Physics 2","Bengali 1","Bengali 2",
-  "English 1","English 2","Arabic 1","Arabic 2/Biology 2","ICT","Camistry 2/History",
-  "Mantik","Civics/Higher Math"
-];
+  <script>
+    // CONFIG: replace with your deployed Google Apps Script web app url
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxEWlgVEiZwVd-F71OzJQBOjZpgJQh5fiNWg8y2pL70YJ9yMk64aER-iAOshw-vPkrv/exec';
 
-const gradeConfig = [
-  {min:80, max:100, grade:"A+", point:5.0},
-  {min:70, max:79, grade:"A", point:4.0},
-  {min:60, max:69, grade:"A-", point:3.5},
-  {min:50, max:59, grade:"B", point:3.0},
-  {min:40, max:49, grade:"C", point:2.0},
-  {min:33, max:39, grade:"D", point:1.0},
-  {min:0,  max:32, grade:"F", point:0.0}
-];
+    const subjects = [
+      { key: 'quran_mazid', label: 'Quran Mazid' },
+      { key: 'hadis', label: 'Hadis' },
+      { key: 'fikah_1', label: 'Fikah 1' },
+      { key: 'fikah_2', label: 'Fikah 2' },
+      { key: 'physics_2', label: 'Physics 2' },
+      { key: 'bengali_1', label: 'Bengali 1' },
+      { key: 'bengali_2', label: 'Bengali 2' },
+      { key: 'english_1', label: 'English 1' },
+      { key: 'english_2', label: 'English 2' },
+      { key: 'arabic_1', label: 'Arabic 1' },
+      { key: 'arabic_2', label: 'Arabic 2' },
+      { key: 'biology_2', label: 'Biology 2' },
+      { key: 'ict', label: 'ICT' },
+      { key: 'chemistry_2', label: 'Chemistry 2' },
+      { key: 'history', label: 'History' },
+      { key: 'mantik', label: 'Mantik' },
+      { key: 'civics', label: 'Civics' },
+      { key: 'higher_math', label: 'Higher Math' }
+    ];
 
-function num(v){ return v===""||v===null||v===undefined ? 0 : Number(v); }
-function computeGradeForScore(score){
-  for(const g of gradeConfig){
-    if(score >= g.min && score <= g.max) return {grade: g.grade, point: g.point};
-  }
-  return {grade:"F", point:0.0};
-}
+    const gradeScale = [
+      { min: 80, max: 100, letter: 'A+', point: 5.0 },
+      { min: 70, max: 79, letter: 'A', point: 4.0 },
+      { min: 60, max: 69, letter: 'A-', point: 3.5 },
+      { min: 50, max: 59, letter: 'B', point: 3.0 },
+      { min: 40, max: 49, letter: 'C', point: 2.0 },
+      { min: 33, max: 39, letter: 'D', point: 1.0 },
+      { min: 0,  max: 32, letter: 'F', point: 0.0 }
+    ];
 
-function computeResult(record){
-  let total = 0;
-  let count = 0;
-  let points = [];
-  for(const s of SUBJECTS){
-    const sc = num(record[s]);
-    total += sc;
-    count++;
-    const gp = computeGradeForScore(sc).point;
-    points.push(gp);
-  }
-  const percentage = count ? (total / (count * 100) * 100) : 0;
-  // Final GPA: average of grade points
-  const gpa = points.length ? (points.reduce((a,b)=>a+b,0)/points.length) : 0;
-  const grade = computeGradeForScore(Math.round(percentage)).grade;
-  const merit = Math.round(percentage * 100)/100;
-  return {
-    Total: total,
-    Percentage: Math.round(percentage * 100)/100,
-    Grade: grade,
-    Point: Math.round(gpa * 100)/100,
-    Merit: merit
-  };
-}
+    // build form fields
+    const template = document.getElementById('subjectTemplate');
+    const form = document.getElementById('entryForm');
+    const resetBtn = document.getElementById('resetBtn');
+    const resultsBody = document.getElementById('resultsBody');
+    const searchInput = document.getElementById('searchInput');
+    const clearSearch = document.getElementById('clearSearch');
 
-/* UI helpers */
-const form = document.getElementById('resultForm');
-const tbody = document.getElementById('tbody');
-const searchInput = document.getElementById('searchRoll');
-const clearBtn = document.getElementById('clearSearch');
-const resetBtn = document.getElementById('resetBtn');
-const saveBtn = document.getElementById('saveBtn');
-
-function showMessage(msg){ alert(msg); }
-
-/* Build form inputs for subjects (already present in HTML as individual inputs with IDs matching subject names) */
-
-/* Load all records */
-async function fetchAll(){
-  if(!SCRIPT_URL) return [];
-  try {
-    const res = await fetch(`${SCRIPT_URL}?action=list`);
-    const json = await res.json();
-    if(json.status === "success") return json.data;
-    return [];
-  } catch (err){
-    console.error(err);
-    return [];
-  }
-}
-
-/* Fetch by roll */
-async function fetchByRoll(roll){
-  if(!SCRIPT_URL) return [];
-  try {
-    const res = await fetch(`${SCRIPT_URL}?action=get&roll=${encodeURIComponent(roll)}`);
-    const json = await res.json();
-    if(json.status === "success") return json.data;
-    return [];
-  } catch (err){
-    console.error(err);
-    return [];
-  }
-}
-
-function renderTable(records){
-  tbody.innerHTML = "";
-  records.forEach((r,i) => {
-    const result = computeResult(r);
-    const tr = document.createElement('tr');
-    tr.className = (i%2===0) ? "bg-white" : "bg-slate-50";
-    tr.innerHTML = `
-      <td class="px-2 py-2 text-sm">${i+1}</td>
-      <td class="px-2 py-2 text-sm">${escapeHtml(r.name||"")}</td>
-      <td class="px-2 py-2 text-sm">${escapeHtml(r.roll||"")}</td>
-      <td class="px-2 py-2 text-sm">
-        ${SUBJECTS.map(s=>`<div class="text-xs">${escapeHtml(s)}: ${escapeHtml(String(r[s]||"0"))}</div>`).join('')}
-        <div class="mt-1 text-sm font-medium">Total: ${result.Total}</div>
-      </td>
-      <td class="px-2 py-2 text-sm">${result.Percentage}%</td>
-      <td class="px-2 py-2 text-sm">${result.Grade}</td>
-      <td class="px-2 py-2 text-sm">${result.Point}</td>
-      <td class="px-2 py-2 text-sm">${result.Merit}</td>
-      <td class="px-2 py-2 text-sm">
-        <div class="flex gap-1">
-          <button data-row='${JSON.stringify(r)}' class="editBtn px-2 py-1 bg-yellow-300 rounded text-xs">Edit</button>
-          <button data-id='${escapeAttr(r.id||"")}' data-rownum='${r._rowNumber||""}' class="deleteBtn px-2 py-1 bg-red-500 text-white rounded text-xs">Delete</button>
-          <button data-row='${JSON.stringify(r)}' class="viewBtn px-2 py-1 bg-green-500 text-white rounded text-xs">View</button>
-          <button data-row='${JSON.stringify(r)}' class="printBtn px-2 py-1 bg-blue-600 text-white rounded text-xs">Print</button>
-        </div>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  // attach actions
-  document.querySelectorAll('.editBtn').forEach(b=>{
-    b.addEventListener('click', (ev)=>{
-      const row = JSON.parse(b.getAttribute('data-row'));
-      populateFormForEdit(row);
-      window.scrollTo({top:0,behavior:'smooth'});
+    subjects.forEach(s => {
+      const clone = template.content.cloneNode(true);
+      const label = clone.querySelector('.subject-label');
+      const input = clone.querySelector('.subject-input');
+      label.textContent = s.label;
+      input.id = s.key;
+      input.name = s.key;
+      document.getElementById('entryForm').insertBefore(clone, form.querySelector('.flex'));
     });
-  });
-  document.querySelectorAll('.deleteBtn').forEach(b=>{
-    b.addEventListener('click', async ()=>{
-      const id = b.getAttribute('data-id');
-      const rownum = b.getAttribute('data-rownum');
-      if(!confirm('Delete this record?')) return;
-      await postAction('delete',{ record: { id, _rowNumber: rownum } });
-      await reload();
-    });
-  });
-  document.querySelectorAll('.viewBtn').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      const row = JSON.parse(b.getAttribute('data-row'));
-      openViewModal(row);
-    });
-  });
-  document.querySelectorAll('.printBtn').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      const row = JSON.parse(b.getAttribute('data-row'));
-      printRecord(row);
-    });
-  });
-}
 
-function populateFormForEdit(row){
-  document.getElementById('record_id').value = row.id || "";
-  document.getElementById('_rowNumber').value = row._rowNumber || "";
-  document.getElementById('name').value = row.name || "";
-  document.getElementById('roll').value = row.roll || "";
-  SUBJECTS.forEach(s=>{
-    const el = document.getElementById(s);
-    if(el) el.value = row[s] || "";
-  });
-}
-
-function clearForm(){
-  document.getElementById('record_id').value = "";
-  document.getElementById('_rowNumber').value = "";
-  form.reset();
-  SUBJECTS.forEach(s=>{
-    const el = document.getElementById(s);
-    if(el) el.value = "";
-  });
-}
-
-/* Post action to backend */
-async function postAction(action, payload){
-  if(!SCRIPT_URL) { showMessage('Missing SCRIPT_URL'); return; }
-  const body = JSON.stringify(Object.assign({action}, payload));
-  const res = await fetch(SCRIPT_URL, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body
-  });
-  return await res.json();
-}
-
-/* Handle form submit */
-form.addEventListener('submit', async (ev)=>{
-  ev.preventDefault();
-  const id = document.getElementById('record_id').value || '';
-  const rowNumber = document.getElementById('_rowNumber').value || '';
-  const record = {};
-  if(id) record.id = id;
-  if(rowNumber) record._rowNumber = rowNumber;
-  record.name = document.getElementById('name').value.trim();
-  record.roll = document.getElementById('roll').value.trim();
-  SUBJECTS.forEach(s=>{
-    const v = document.getElementById(s).value;
-    record[s] = v === "" ? "" : Number(v);
-  });
-  // compute summary fields
-  const summary = computeResult(record);
-  record.Total = summary.Total;
-  record.Percentage = summary.Percentage;
-  record.Grade = summary.Grade;
-  record.Point = summary.Point;
-  record.Merit = summary.Merit;
-  record.Timestamp = new Date().toLocaleString();
-
-  const action = id ? 'update' : 'new-entry';
-  const resp = await postAction(action, { record });
-  if(resp && resp.status === 'success'){
-    showMessage('Saved.');
-    clearForm();
-    await reload();
-  } else {
-    showMessage('Save failed.');
-    console.error(resp);
-  }
-});
-
-resetBtn.addEventListener('click', (e)=>{
-  e.preventDefault();
-  clearForm();
-});
-
-/* Search */
-let searchTimeout = null;
-searchInput.addEventListener('input', async (e)=>{
-  const v = e.target.value.trim();
-  if(searchTimeout) clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(async ()=>{
-    if(!v){
-      await reload();
-      return;
+    // util
+    function toNumber(v) {
+      const n = parseFloat(v);
+      return isNaN(n) ? 0 : Math.max(0, Math.min(100, n));
     }
-    const rows = await fetchByRoll(v);
-    renderTable(rows);
-  }, 250);
-});
-clearBtn.addEventListener('click', ()=>{
-  searchInput.value = "";
-  reload();
-});
 
-/* Helpers: view modal & print */
-function openViewModal(row){
-  const win = window.open('', '_blank', 'width=800,height=600');
-  const r = computeResult(row);
-  win.document.write('<html><head><title>View Result</title><meta name="viewport" content="width=device-width,initial-scale=1" /></head><body style="font-family:Arial;padding:16px">');
-  win.document.write(`<h2>${escapeHtml(row.name||'')}</h2><p>Roll: ${escapeHtml(row.roll||'')}</p>`);
-  win.document.write('<table border="1" cellpadding="6" style="border-collapse:collapse">');
-  SUBJECTS.forEach(s=>{
-    win.document.write(`<tr><td>${escapeHtml(s)}</td><td>${escapeHtml(String(row[s]||'0'))}</td></tr>`);
-  });
-  win.document.write(`<tr><td><strong>Total</strong></td><td>${r.Total}</td></tr>`);
-  win.document.write(`<tr><td><strong>Percentage</strong></td><td>${r.Percentage}%</td></tr>`);
-  win.document.write(`<tr><td><strong>Grade</strong></td><td>${r.Grade}</td></tr>`);
-  win.document.write(`<tr><td><strong>GPA</strong></td><td>${r.Point}</td></tr>`);
-  win.document.write('</table>');
-  win.document.write('</body></html>');
-  win.document.close();
-}
+    function gradeForPercentage(p) {
+      for (const g of gradeScale) {
+        if (p >= g.min && p <= g.max) return { letter: g.letter, point: g.point };
+      }
+      return { letter: 'F', point: 0.0 };
+    }
 
-function printRecord(row){
-  const r = computeResult(row);
-  const w = window.open('', '_blank', 'width=800,height=600');
-  w.document.write('<html><head><title>Print Result</title><meta name="viewport" content="width=device-width,initial-scale=1" /></head><body style="font-family:Arial;padding:16px">');
-  w.document.write(`<h2>${escapeHtml(row.name||'')}</h2><p>Roll: ${escapeHtml(row.roll||'')}</p>`);
-  w.document.write('<table border="1" cellpadding="6" style="border-collapse:collapse;width:100%">');
-  SUBJECTS.forEach(s=>{
-    w.document.write(`<tr><td>${escapeHtml(s)}</td><td>${escapeHtml(String(row[s]||'0'))}</td></tr>`);
-  });
-  w.document.write(`<tr><td><strong>Total</strong></td><td>${r.Total}</td></tr>`);
-  w.document.write(`<tr><td><strong>Percentage</strong></td><td>${r.Percentage}%</td></tr>`);
-  w.document.write(`<tr><td><strong>Grade</strong></td><td>${r.Grade}</td></tr>`);
-  w.document.write(`<tr><td><strong>GPA</strong></td><td>${r.Point}</td></tr>`);
-  w.document.write('</table>');
-  w.document.write('<script>window.print();</script>');
-  w.document.write('</body></html>');
-  w.document.close();
-}
+    function calculateResult(subjectValues) {
+      const keys = Object.keys(subjectValues);
+      let total = 0;
+      let count = 0;
+      const points = [];
+      for (const k of keys) {
+        const v = toNumber(subjectValues[k]);
+        total += v;
+        count++;
+        const gp = gradeForPercentage(v).point;
+        points.push(gp);
+      }
+      const avgPercent = count ? (total / count) : 0;
+      const avgPoint = points.length ? (points.reduce((a,b)=>a+b,0)/points.length) : 0;
+      const { letter } = gradeForPercentage(avgPercent);
+      return {
+        total: Math.round(total),
+        grade: letter,
+        point: Number(avgPoint.toFixed(2)),
+        merit: Number(avgPercent.toFixed(2))
+      }
+    }
 
-/* escape helpers */
-function escapeHtml(str){
-  if(str===null||str===undefined) return '';
-  return String(str).replace(/[&<>"'`=\/]/g, function(s){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','/':'&#47;','`':'&#96;','=':'&#61;'})[s]; });
-}
-function escapeAttr(s){ return (s||'').replace(/"/g,'&quot;'); }
+    // API
+    async function apiGet(params = {}) {
+      const qs = new URLSearchParams(params).toString();
+      const url = GAS_URL + (qs ? ('?'+qs) : '');
+      const res = await fetch(url);
+      return res.json();
+    }
+    async function apiPost(body = {}) {
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      return res.json();
+    }
 
-/* initial load */
-async function reload(){
-  const rows = await fetchAll();
-  renderTable(rows || []);
-}
-reload();
-</script>
+    // rendering
+    let records = [];
+    async function loadAll() {
+      try {
+        const r = await apiGet({ action: 'list' });
+        if (r && r.success) {
+          records = r.data.map(normalizeRecord);
+          renderTable(records);
+        }
+      } catch (err) { console.error(err); }
+    }
+
+    function normalizeRecord(raw) {
+      const rec = {};
+      // normalize string keys, ensure numeric fields are numbers
+      rec.name = raw.name || raw.Name || '';
+      rec.roll = raw.roll || raw.Roll || '';
+      subjects.forEach(s => rec[s.key] = raw[s.key] !== undefined ? raw[s.key] : '');
+      rec.total = raw.total || raw.Total || '';
+      rec.grade = raw.grade || raw.Grade || '';
+      rec.point = raw.point || raw.Point || '';
+      rec.merit = raw.merit || raw.Merit || '';
+      rec.id = raw.id || '';
+      rec.created_at = raw.created_at || '';
+      return rec;
+    }
+
+    function renderTable(list) {
+      resultsBody.innerHTML = '';
+      if (!list || !list.length) {
+        resultsBody.innerHTML = '<tr><td class="p-2" colspan="7">No records</td></tr>';
+        return;
+      }
+      for (const r of list) {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b';
+        tr.innerHTML = `
+          <td class="p-2">${escapeHtml(r.name)}</td>
+          <td class="p-2">${escapeHtml(r.roll)}</td>
+          <td class="p-2">${escapeHtml(r.total)}</td>
+          <td class="p-2">${escapeHtml(r.grade)}</td>
+          <td class="p-2">${escapeHtml(r.point)}</td>
+          <td class="p-2">${escapeHtml(r.merit)}</td>
+          <td class="p-2">
+            <div class="flex gap-1">
+              <button data-id="${r.id}" class="viewBtn px-2 py-1 border rounded text-sm">View</button>
+              <button data-id="${r.id}" class="editBtn px-2 py-1 border rounded text-sm">Edit</button>
+              <button data-id="${r.id}" class="deleteBtn px-2 py-1 border rounded text-sm">Delete</button>
+              <button data-id="${r.id}" class="printRowBtn px-2 py-1 border rounded text-sm">Print</button>
+            </div>
+          </td>
+        `;
+        resultsBody.appendChild(tr);
+      }
+
+      // attach actions
+      document.querySelectorAll('.viewBtn').forEach(b => b.addEventListener('click', e => viewRecord(e.target.dataset.id)));
+      document.querySelectorAll('.editBtn').forEach(b => b.addEventListener('click', e => editRecord(e.target.dataset.id)));
+      document.querySelectorAll('.deleteBtn').forEach(b => b.addEventListener('click', e => deleteRecord(e.target.dataset.id)));
+      document.querySelectorAll('.printRowBtn').forEach(b => b.addEventListener('click', e => printRow(e.target.dataset.id)));
+    }
+
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
+    // form handling
+    form.addEventListener('submit', async function (ev) {
+      ev.preventDefault();
+      const payload = {};
+      payload.name = document.getElementById('name').value.trim();
+      payload.roll = document.getElementById('roll').value.trim();
+      subjects.forEach(s => payload[s.key] = toNumber(document.getElementById(s.key).value || 0));
+      const calc = calculateResult(Object.fromEntries(subjects.map(s=>[s.key, payload[s.key]])));
+      payload.total = calc.total;
+      payload.grade = calc.grade;
+      payload.point = calc.point;
+      payload.merit = calc.merit;
+
+      const id = document.getElementById('recordId').value;
+      if (id) {
+        payload.action = 'update';
+        payload.id = id;
+        const res = await apiPost(payload);
+        if (res && res.success) {
+          await loadAll();
+          form.reset();
+          document.getElementById('recordId').value = '';
+        }
+      } else {
+        payload.action = 'new-entry';
+        const res = await apiPost(payload);
+        if (res && res.success) {
+          await loadAll();
+          form.reset();
+        }
+      }
+    });
+
+    resetBtn.addEventListener('click', function () {
+      form.reset();
+      document.getElementById('recordId').value = '';
+    });
+
+    // actions
+    function findById(id) { return records.find(r=>String(r.id)===String(id)); }
+    async function viewRecord(id) {
+      const r = findById(id);
+      if (!r) return;
+      const html = generateDetailHtml(r);
+      document.getElementById('modalContent').innerHTML = html;
+      document.getElementById('viewModal').classList.remove('hidden');
+    }
+    function generateDetailHtml(r) {
+      const rows = subjects.map(s => `<tr><td class="p-1 border">${s.label}</td><td class="p-1 border">${escapeHtml(r[s.key])}</td></tr>`).join('');
+      return `
+        <div>
+          <h2 class="text-xl font-semibold mb-2">${escapeHtml(r.name)} — Roll: ${escapeHtml(r.roll)}</h2>
+          <table class="w-full border-collapse">
+            ${rows}
+            <tr><td class="p-1 border">Total</td><td class="p-1 border">${escapeHtml(r.total)}</td></tr>
+            <tr><td class="p-1 border">Grade</td><td class="p-1 border">${escapeHtml(r.grade)}</td></tr>
+            <tr><td class="p-1 border">Point</td><td class="p-1 border">${escapeHtml(r.point)}</td></tr>
+            <tr><td class="p-1 border">Merit (%)</td><td class="p-1 border">${escapeHtml(r.merit)}</td></tr>
+          </table>
+        </div>
+      `;
+    }
+
+    function editRecord(id) {
+      const r = findById(id);
+      if (!r) return;
+      document.getElementById('name').value = r.name;
+      document.getElementById('roll').value = r.roll;
+      subjects.forEach(s => document.getElementById(s.key).value = r[s.key]);
+      document.getElementById('recordId').value = r.id;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function deleteRecord(id) {
+      if (!confirm('Delete this record?')) return;
+      const res = await apiPost({ action: 'delete', id });
+      if (res && res.success) {
+        await loadAll();
+      } else {
+        alert('Delete failed');
+      }
+    }
+
+    function printRow(id) {
+      const r = findById(id);
+      if (!r) return;
+      const prev = document.getElementById('modalContent').innerHTML;
+      document.getElementById('modalContent').innerHTML = generateDetailHtml(r);
+      document.getElementById('viewModal').classList.remove('hidden');
+      setTimeout(()=>window.print(), 300);
+    }
+
+    // search
+    searchInput.addEventListener('input', function () {
+      const q = this.value.trim();
+      if (q.length) clearSearch.classList.remove('hidden'); else clearSearch.classList.add('hidden');
+      if (!q) { renderTable(records); return; }
+      const filtered = records.filter(r => String(r.roll).toLowerCase().includes(q.toLowerCase()));
+      renderTable(filtered);
+    });
+    clearSearch.addEventListener('click', function () {
+      searchInput.value = '';
+      searchInput.dispatchEvent(new Event('input'));
+    });
+
+    // modal controls
+    document.getElementById('closeModal').addEventListener('click', ()=>document.getElementById('viewModal').classList.add('hidden'));
+    document.getElementById('modalClose2').addEventListener('click', ()=>document.getElementById('viewModal').classList.add('hidden'));
+    document.getElementById('printBtn').addEventListener('click', ()=>window.print());
+
+    // load
+    loadAll();
+  </script>
 </body>
 </html>
