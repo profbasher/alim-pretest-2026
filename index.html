@@ -7,372 +7,346 @@
   <title>College Result Store</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 min-h-screen font-sans">
+<body class="bg-gray-50 min-h-screen text-gray-800">
   <div class="max-w-6xl mx-auto p-4">
-    <header class="flex items-center justify-between mb-4">
+    <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
       <h1 class="text-2xl font-semibold">College Result Store</h1>
-      <div class="flex items-center gap-3">
-        <div class="relative">
-          <input id="search" type="search" placeholder="Search by roll" class="pl-10 pr-8 py-2 border rounded-lg focus:outline-none focus:ring" />
-          <svg id="searchIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-2.5 text-gray-400 pointer-events-none" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.9 14.32a8 8 0 111.414-1.414l3.387 3.387-1.414 1.414-3.387-3.387zM8 14a6 6 0 100-12 6 6 0 000 12z" clip-rule="evenodd" /></svg>
-          <button id="clearSearch" class="absolute right-1 top-1.5 p-1 rounded-full hidden">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-          </button>
-        </div>
-        <button id="addBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Add Result</button>
+      <div class="w-full sm:w-80 relative">
+        <input id="search" type="search" placeholder="Search by roll" class="w-full pl-4 pr-10 py-2 rounded border focus:outline-none" />
+        <button id="clearSearch" class="absolute right-1 top-1/2 -translate-y-1/2 p-1 text-gray-600 hidden" title="Clear">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
       </div>
     </header>
 
-    <main>
-      <div class="overflow-x-auto bg-white rounded-lg shadow">
-        <table id="resultsTable" class="min-w-full divide-y">
-          <thead class="bg-gray-100">
-            <tr id="tableHead" class="text-left text-sm font-medium text-gray-700"></tr>
-          </thead>
-          <tbody id="tableBody" class="divide-y"></tbody>
-        </table>
-      </div>
-    </main>
-  </div>
-
-  <!-- Modal Form -->
-  <div id="modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center p-4">
-    <div class="bg-white w-full max-w-3xl rounded-lg p-6 overflow-auto max-h-[90vh]">
-      <h2 id="modalTitle" class="text-xl font-semibold mb-4">Add / Edit Result</h2>
-      <form id="resultForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium">Name</label>
-          <input name="Name" required class="mt-1 block w-full border rounded p-2" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Roll</label>
-          <input name="Roll" required class="mt-1 block w-full border rounded p-2" />
-        </div>
-
-        <!-- Subjects fields -->
-        <template id="subjectFieldsTemplate">
-          <div>
-            <label class="block text-sm font-medium subject-label"></label>
-            <input type="number" min="0" max="100" step="0.01" class="mt-1 block w-full border rounded p-2 subject-input" />
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <form id="resultForm" class="bg-white p-4 rounded shadow col-span-1 lg:col-span-1">
+        <input type="hidden" id="recordId" />
+        <div class="grid grid-cols-1 gap-3">
+          <input id="name" placeholder="Name" class="w-full p-2 border rounded" required />
+          <input id="roll" placeholder="Roll" class="w-full p-2 border rounded" required />
+          <div id="subjectsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <!-- subject inputs injected by JS -->
           </div>
-        </template>
-
-        <div class="md:col-span-2 flex justify-end gap-2 mt-2">
-          <button type="button" id="cancelBtn" class="px-4 py-2 border rounded">Cancel</button>
-          <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Save</button>
+          <div class="flex gap-2">
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+            <button type="button" id="resetBtn" class="bg-gray-200 px-4 py-2 rounded">Reset</button>
+            <button type="button" id="calcBtn" class="ml-auto bg-green-600 text-white px-4 py-2 rounded">Calculate</button>
+          </div>
         </div>
       </form>
-    </div>
+
+      <div class="bg-white rounded shadow p-4 col-span-2 overflow-x-auto">
+        <table id="resultsTable" class="min-w-full table-auto text-sm">
+          <!-- table built by JS -->
+        </table>
+      </div>
+    </section>
   </div>
 
-  <!-- Print Template -->
-  <div id="printArea" class="hidden"></div>
+<script>
+/* ---------- CONFIG ---------- */
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyBhxrwQOs4dgYXCSYzRGGk8lr11FLnIFjPs36sXfjZ53btYg7MoTxth0EfUTR4QGuf/exec';
+const SUBJECTS = [
+  "Quran Mazid","Hadis","Fikah 1","Fikah 2/ Physics 2","Bengali 1","Bengali 2",
+  "English 1","English 2","Arabic 1","Arabic 2/Biology 2","ICT","Camistry 2/History",
+  "Mantik","Civics/Higher Math"
+];
+/* Grade mapping: percent -> {grade, point} */
+function gradePointFromPercent(p) {
+  p = Number(p);
+  if (p >= 80) return {grade:'A+', point:5.0};
+  if (p >= 70) return {grade:'A', point:4.0};
+  if (p >= 60) return {grade:'A-', point:3.5};
+  if (p >= 50) return {grade:'B', point:3.0};
+  if (p >= 40) return {grade:'C', point:2.0};
+  if (p >= 33) return {grade:'D', point:1.0};
+  return {grade:'F', point:0.0};
+}
+function gradeFromGPA(gpa) {
+  if (gpa >= 5.0) return 'A+';
+  if (gpa >= 4.0) return 'A';
+  if (gpa >= 3.5) return 'A-';
+  if (gpa >= 3.0) return 'B';
+  if (gpa >= 2.0) return 'C';
+  if (gpa >= 1.0) return 'D';
+  return 'F';
+}
+/* ---------- UI BUILD ---------- */
+const subjectsGrid = document.getElementById('subjectsGrid');
+SUBJECTS.forEach(s => {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'flex flex-col';
+  wrapper.innerHTML = `<label class="text-xs text-gray-600">${s}</label>
+    <input data-subject="${s}" type="number" min="0" max="100" class="p-2 border rounded subject-input" />`;
+  subjectsGrid.appendChild(wrapper);
+});
 
-  <script>
-    // CONFIG: set this to your deployed Google Apps Script web app URL
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzvpP4Hm1Chq2U0gyc-29KtuMzBZK14S8s8U8mzHxxPsz8IwPLp8ZCavuZgDvE4Bbvt/exec';
+const form = document.getElementById('resultForm');
+const table = document.getElementById('resultsTable');
+const searchInput = document.getElementById('search');
+const clearBtn = document.getElementById('clearSearch');
+const resetBtn = document.getElementById('resetBtn');
+const calcBtn = document.getElementById('calcBtn');
+const recordIdInput = document.getElementById('recordId');
 
-    const SUBJECTS = [
-      "Quran Mazid","Hadis","Fikah 1","Fikah 2/ Physics 2","Bengali 1","Bengali 2",
-      "English 1","English 2","Arabic 1","Arabic 2/Biology 2","ICT","Camistry 2/History",
-      "Mantik","Civics/Higher Math"
-    ];
+let DATA = [];
 
-    // Grade scale
-    function percentToGrade(p) {
-      p = Number(p);
-      if (isNaN(p)) return { grade: 'F', point: 0 };
-      if (p >= 80) return { grade: 'A+', point: 5.0 };
-      if (p >= 70) return { grade: 'A', point: 4.0 };
-      if (p >= 60) return { grade: 'A-', point: 3.5 };
-      if (p >= 50) return { grade: 'B', point: 3.0 };
-      if (p >= 40) return { grade: 'C', point: 2.0 };
-      if (p >= 33) return { grade: 'D', point: 1.0 };
-      return { grade: 'F', point: 0.0 };
-    }
-
-    function meritFromGPA(gpa) {
-      if (gpa >= 4.5) return 'Outstanding';
-      if (gpa >= 3.5) return 'First Class';
-      if (gpa >= 2.5) return 'Second Class';
-      if (gpa >= 2.0) return 'Third Class';
-      return 'Fail';
-    }
-
-    // Build table head
-    const tableHead = document.getElementById('tableHead');
-    const tableBody = document.getElementById('tableBody');
-    const headCols = ['Name','Roll', ...SUBJECTS, 'Total','Grade','Point','Merit','Actions'];
-    headCols.forEach(h => {
-      const th = document.createElement('th');
-      th.className = 'px-4 py-3';
-      th.textContent = h;
-      tableHead.appendChild(th);
+/* ---------- Fetch & Render ---------- */
+async function fetchAll() {
+  const res = await fetch(`${GAS_URL}?action=list`);
+  const json = await res.json();
+  DATA = json.data || [];
+  renderTable(DATA);
+}
+function renderTable(rows) {
+  const visible = rows.filter(r => {
+    const q = searchInput.value.trim();
+    if (!q) return true;
+    return String(r.roll || '').toLowerCase().includes(q.toLowerCase());
+  });
+  const cols = ['name','roll', ...SUBJECTS, 'total','grade','gpa','merit'];
+  // header
+  let html = '<thead><tr class="bg-gray-100"><th class="p-2 text-left">#</th>';
+  cols.forEach(c => html += `<th class="p-2 text-left">${escapeHtml(c)}</th>`);
+  html += '<th class="p-2 text-left">Actions</th></tr></thead><tbody>';
+  visible.forEach((r,idx) => {
+    html += `<tr class="${idx%2? 'bg-white':'bg-gray-50'}">`;
+    html += `<td class="p-2">${idx+1}</td>`;
+    cols.forEach(c => {
+      html += `<td class="p-2">${escapeHtml(r[c] !== undefined ? String(r[c]) : '')}</td>`;
     });
+    html += `<td class="p-2">
+      <button class="editBtn mr-2" data-id="${r.id}" title="Edit">✏️</button>
+      <button class="deleteBtn mr-2" data-id="${r.id}" title="Delete">🗑️</button>
+      <button class="viewBtn mr-2" data-id="${r.id}" title="View">🔍</button>
+      <button class="printBtn" data-id="${r.id}" title="Print">🖨️</button>
+    </td></tr>`;
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+  attachTableEvents();
+}
 
-    // Modal and form
-    const modal = document.getElementById('modal');
-    const resultForm = document.getElementById('resultForm');
-    const subjectTemplate = document.getElementById('subjectFieldsTemplate');
-    const modalTitle = document.getElementById('modalTitle');
-    let editingId = null;
+function attachTableEvents() {
+  document.querySelectorAll('.editBtn').forEach(b => b.onclick = onEdit);
+  document.querySelectorAll('.deleteBtn').forEach(b => b.onclick = onDelete);
+  document.querySelectorAll('.viewBtn').forEach(b => b.onclick = onView);
+  document.querySelectorAll('.printBtn').forEach(b => b.onclick = onPrint);
+}
 
-    function openModal(edit = false, data = null) {
-      editingId = edit && data ? data.ID : null;
-      modalTitle.textContent = edit ? 'Edit Result' : 'Add Result';
-      resultForm.reset();
+/* ---------- Form Handling ---------- */
+form.addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const record = readForm();
+  const isEdit = !!recordIdInput.value;
+  if (isEdit) {
+    await sendUpdate(recordIdInput.value, record);
+  } else {
+    record.id = Date.now().toString();
+    record.timestamp = new Date().toISOString();
+    await sendCreate(record);
+  }
+  resetForm();
+  await fetchAll();
+});
 
-      // clear existing subject inputs
-      const existing = resultForm.querySelectorAll('.subject-row');
-      existing.forEach(e => e.remove());
+calcBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  const record = readForm();
+  const computed = computeFinal(record);
+  populateComputedToForm(computed);
+});
 
-      SUBJECTS.forEach((s, idx) => {
-        const node = subjectTemplate.content.cloneNode(true);
-        const wrapper = document.createElement('div');
-        wrapper.className = 'subject-row';
-        const label = node.querySelector('.subject-label');
-        label.textContent = s;
-        const input = node.querySelector('.subject-input');
-        input.name = s;
-        if (data && data[s] !== undefined) input.value = data[s];
-        wrapper.appendChild(node);
-        // insert before buttons (which are last)
-        resultForm.insertBefore(wrapper, resultForm.lastElementChild);
-      });
+resetBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  resetForm();
+});
 
-      if (data) {
-        resultForm.querySelector('[name="Name"]').value = data.Name || '';
-        resultForm.querySelector('[name="Roll"]').value = data.Roll || '';
-      }
-
-      modal.classList.remove('hidden');
-      modal.style.display = 'flex';
+function readForm() {
+  const rec = {};
+  rec.name = document.getElementById('name').value.trim();
+  rec.roll = document.getElementById('roll').value.trim();
+  SUBJECTS.forEach(s => {
+    const el = document.querySelector(`[data-subject="${s}"]`);
+    rec[s] = el && el.value !== '' ? Number(el.value) : '';
+  });
+  return rec;
+}
+function populateComputedToForm(c) {
+  // set total, grade, gpa, merit fields hidden in sheet by creating inputs temporarily
+  // We'll show them in form as readonly hidden inputs by setting values on DOM (not visible) or just set custom dataset
+  // For simplicity create hidden inputs if not exist
+  ['total','grade','gpa','merit'].forEach(k => {
+    let el = document.getElementById(k);
+    if (!el) {
+      el = document.createElement('input');
+      el.type='hidden'; el.id = k; form.appendChild(el);
     }
+    el.value = c[k];
+  });
+}
+function resetForm() {
+  form.reset();
+  recordIdInput.value = '';
+  ['total','grade','gpa','merit'].forEach(k => {
+    const el = document.getElementById(k);
+    if (el) el.remove();
+  });
+}
 
-    document.getElementById('addBtn').addEventListener('click', () => openModal(false, null));
-    document.getElementById('cancelBtn').addEventListener('click', closeModal);
-    function closeModal() {
-      modal.classList.add('hidden');
-      modal.style.display = 'none';
-      editingId = null;
-    }
+/* ---------- Compute final GPA/Grade/Merit ---------- */
+function computeFinal(record) {
+  const marks = SUBJECTS.map(s => {
+    const v = record[s];
+    return (v === '' || v === null || isNaN(Number(v))) ? 0 : Number(v);
+  });
+  const total = marks.reduce((a,b)=>a+b,0);
+  const perSubjectGP = marks.map(m => gradePointFromPercent(m).point);
+  const gpa = perSubjectGP.reduce((a,b)=>a+b,0) / SUBJECTS.length;
+  const gpaRounded = Math.round(gpa * 100) / 100;
+  const overallPercent = Math.round((total / (SUBJECTS.length * 100)) * 10000) / 100;
+  const overallGrade = gradeFromGPA(gpaRounded);
+  const merit = overallPercent; // percentage
+  return { total, grade: overallGrade, gpa: gpaRounded.toFixed(2), merit: merit + '%' };
+}
 
-    // Fetch list from backend
-    async function fetchList() {
-      const res = await fetch(`${SCRIPT_URL}?action=list`);
-      const json = await res.json();
-      return json.success ? json.data : [];
-    }
+/* ---------- CRUD via GAS ---------- */
+async function sendCreate(record) {
+  // attach computed
+  const computed = computeFinal(record);
+  record.total = computed.total;
+  record.grade = computed.grade;
+  record.gpa = computed.gpa;
+  record.merit = computed.merit;
+  record.timestamp = new Date().toISOString();
+  const payload = { action: 'create', record };
+  await postJSON(GAS_URL, payload);
+}
+async function sendUpdate(id, record) {
+  const computed = computeFinal(record);
+  record.total = computed.total;
+  record.grade = computed.grade;
+  record.gpa = computed.gpa;
+  record.merit = computed.merit;
+  record.timestamp = new Date().toISOString();
+  record.id = id;
+  const payload = { action: 'update', id, record };
+  await postJSON(GAS_URL, payload);
+}
+async function sendDelete(id) {
+  const payload = { action: 'delete', id };
+  await postJSON(GAS_URL, payload);
+}
+async function postJSON(url, body) {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+  const json = await res.json();
+  return json;
+}
 
-    // Render table rows
-    async function renderTable(filterRoll = '') {
-      tableBody.innerHTML = '';
-      const data = await fetchList();
-      const rows = data.filter(r => String(r.Roll || '').toLowerCase().includes(String(filterRoll).toLowerCase()));
-      rows.forEach(row => {
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50';
-        // Name, Roll
-        const makeTd = (txt, classes='px-4 py-2') => {
-          const td = document.createElement('td');
-          td.className = classes + ' align-top text-sm';
-          td.innerHTML = txt;
-          return td;
-        };
-        tr.appendChild(makeTd(escapeHtml(row.Name || '')));
-        tr.appendChild(makeTd(escapeHtml(row.Roll || '')));
+/* ---------- Row Actions ---------- */
+function onEdit(ev) {
+  const id = ev.currentTarget.dataset.id;
+  const row = DATA.find(r => String(r.id) === String(id));
+  if (!row) return;
+  document.getElementById('name').value = row.name || '';
+  document.getElementById('roll').value = row.roll || '';
+  SUBJECTS.forEach(s => {
+    const el = document.querySelector(`[data-subject="${s}"]`);
+    el.value = row[s] !== undefined ? row[s] : '';
+  });
+  // set computed hidden inputs
+  populateComputedToForm({ total: row.total, grade: row.grade, gpa: row.gpa, merit: row.merit });
+  recordIdInput.value = id;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-        // Subjects and total calculation
-        let total = 0;
-        let count = 0;
-        SUBJECTS.forEach(s => {
-          const val = parseFloat(row[s]) || 0;
-          total += val;
-          count++;
-          tr.appendChild(makeTd(String(val)));
-        });
+async function onDelete(ev) {
+  const id = ev.currentTarget.dataset.id;
+  if (!confirm('Delete this record?')) return;
+  await sendDelete(id);
+  await fetchAll();
+}
 
-        const avgPercent = count ? (total / count) : 0;
-        const gradeInfo = percentToGrade(avgPercent);
-        const gpa = calculateGPAFromRow(row);
+function onView(ev) {
+  const id = ev.currentTarget.dataset.id;
+  const row = DATA.find(r => String(r.id) === String(id));
+  if (!row) return;
+  const html = buildViewHtml(row);
+  const w = window.open('', '_blank', 'width=800,height=600');
+  w.document.write(html);
+  w.document.close();
+}
 
-        tr.appendChild(makeTd(total.toFixed(2)));
-        tr.appendChild(makeTd(escapeHtml(gradeInfo.grade)));
-        tr.appendChild(makeTd(gpa.toFixed(2)));
-        tr.appendChild(makeTd(escapeHtml(meritFromGPA(gpa))));
+function onPrint(ev) {
+  const id = ev.currentTarget.dataset.id;
+  const row = DATA.find(r => String(r.id) === String(id));
+  if (!row) return;
+  const html = buildPrintHtml(row);
+  const w = window.open('', '_blank', 'width=800,height=600');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(()=>w.print(), 300);
+}
 
-        // Actions
-        const actionsTd = document.createElement('td');
-        actionsTd.className = 'px-4 py-2';
-        const editBtn = actionButton('Edit', () => openForEdit(row));
-        const delBtn = actionButton('Delete', () => deleteRow(row.ID));
-        const viewBtn = actionButton('View', () => viewRow(row));
-        const printBtn = actionButton('Print', () => printRow(row));
-        actionsTd.appendChild(editBtn);
-        actionsTd.appendChild(delBtn);
-        actionsTd.appendChild(viewBtn);
-        actionsTd.appendChild(printBtn);
-        tr.appendChild(actionsTd);
+function buildViewHtml(row) {
+  let s = `<div style="font-family:system-ui,Arial;padding:20px;">`;
+  s += `<h2 style="margin-bottom:8px;">Result - ${escapeHtml(row.name || '')} (${escapeHtml(row.roll || '')})</h2>`;
+  s += `<table style="border-collapse:collapse;width:100%;">`;
+  SUBJECTS.forEach(sub => {
+    s += `<tr><td style="padding:6px;border:1px solid #ddd;width:60%">${escapeHtml(sub)}</td><td style="padding:6px;border:1px solid #ddd">${escapeHtml(String(row[sub]||''))}</td></tr>`;
+  });
+  s += `<tr><td style="padding:6px;border:1px solid #ddd"><strong>Total</strong></td><td style="padding:6px;border:1px solid #ddd">${escapeHtml(String(row.total||''))}</td></tr>`;
+  s += `<tr><td style="padding:6px;border:1px solid #ddd"><strong>GPA</strong></td><td style="padding:6px;border:1px solid #ddd">${escapeHtml(String(row.gpa||''))}</td></tr>`;
+  s += `<tr><td style="padding:6px;border:1px solid #ddd"><strong>Grade</strong></td><td style="padding:6px;border:1px solid #ddd">${escapeHtml(String(row.grade||''))}</td></tr>`;
+  s += `<tr><td style="padding:6px;border:1px solid #ddd"><strong>Merit</strong></td><td style="padding:6px;border:1px solid #ddd">${escapeHtml(String(row.merit||''))}</td></tr>`;
+  s += `</table></div>`;
+  return s;
+}
 
-        tableBody.appendChild(tr);
-      });
-    }
+function buildPrintHtml(row) {
+  return `<!doctype html><html><head><meta charset="utf-8"><title>Print</title>
+  <style>body{font-family:Arial,Helvetica,sans-serif;padding:20px}table{border-collapse:collapse;width:100%}td,th{border:1px solid #444;padding:8px}</style>
+  </head><body>` + buildViewHtml(row) + `</body></html>`;
+}
 
-    function actionButton(label, cb) {
-      const btn = document.createElement('button');
-      btn.className = 'mr-2 mb-1 px-3 py-1 rounded text-sm border hover:bg-gray-100';
-      btn.textContent = label;
-      btn.addEventListener('click', cb);
-      return btn;
-    }
+/* ---------- Search Clear Handler ---------- */
+searchInput.addEventListener('input', () => {
+  if (searchInput.value.trim()) {
+    clearBtn.classList.remove('hidden');
+  } else {
+    clearBtn.classList.add('hidden');
+  }
+  renderTable(DATA);
+});
+clearBtn.addEventListener('click', () => {
+  searchInput.value = '';
+  clearBtn.classList.add('hidden');
+  renderTable(DATA);
+});
 
-    function escapeHtml(unsafe) {
-      return String(unsafe || '').replace(/[&<"'>]/g, function(m) {
-        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m];
-      });
-    }
+/* ---------- Utilities ---------- */
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
 
-    // Calculate GPA from row by converting each subject to grade point and averaging
-    function calculateGPAFromRow(row) {
-      let totalPoints = 0;
-      let count = 0;
-      SUBJECTS.forEach(s => {
-        const p = Number(row[s]);
-        if (!isNaN(p)) {
-          totalPoints += percentToGrade(p).point;
-          count++;
-        }
-      });
-      return count ? totalPoints / count : 0;
-    }
-
-    async function openForEdit(row) {
-      // fetch full object from backend to ensure latest
-      const res = await fetch(`${SCRIPT_URL}?action=get&id=${encodeURIComponent(row.ID)}`);
-      const j = await res.json();
-      if (j.success && j.data) openModal(true, j.data);
-      else openModal(true, row);
-    }
-
-    async function deleteRow(id) {
-      if (!confirm('Delete this record?')) return;
-      const res = await fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'delete', ID: id }),
-        headers: { 'Content-Type': 'application/json' }
-      });
-      const j = await res.json();
-      if (j.success) await renderTable(document.getElementById('search').value);
-      else alert('Delete failed');
-    }
-
-    function viewRow(row) {
-      const html = buildPrintHtml(row);
-      const w = window.open('', '_blank', 'width=800,height=900');
-      w.document.write(html);
-      w.document.close();
-    }
-
-    function printRow(row) {
-      const html = buildPrintHtml(row);
-      const w = window.open('', '_blank', 'width=800,height=900');
-      w.document.write(html);
-      w.document.close();
-      w.focus();
-      w.print();
-    }
-
-    function buildPrintHtml(row) {
-      const gpa = calculateGPAFromRow(row);
-      const overallGrade = percentToGrade(averagePercentFromRow(row)).grade;
-      const rowsHtml = SUBJECTS.map(s => `<tr><td>${escapeHtml(s)}</td><td>${escapeHtml(row[s]||'0')}</td><td>${percentToGrade(Number(row[s])||0).grade}</td><td>${percentToGrade(Number(row[s])||0).point.toFixed(2)}</td></tr>`).join('');
-      return `
-        <html><head>
-          <title>Result - ${escapeHtml(row.Name||'')}</title>
-          <style>body{font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial; padding:20px} table{width:100%;border-collapse:collapse}td,th{border:1px solid #ddd;padding:8px}</style>
-        </head>
-        <body>
-          <h1>Result Card</h1>
-          <p><strong>Name:</strong> ${escapeHtml(row.Name||'')}</p>
-          <p><strong>Roll:</strong> ${escapeHtml(row.Roll||'')}</p>
-          <table>
-            <thead><tr><th>Subject</th><th>Mark</th><th>Grade</th><th>Point</th></tr></thead>
-            <tbody>
-              ${rowsHtml}
-            </tbody>
-          </table>
-          <p><strong>Total:</strong> ${(computeTotalFromRow(row)).toFixed(2)} &nbsp;&nbsp; <strong>GPA:</strong> ${gpa.toFixed(2)} &nbsp;&nbsp; <strong>Grade:</strong> ${escapeHtml(overallGrade)} &nbsp;&nbsp; <strong>Merit:</strong> ${escapeHtml(meritFromGPA(gpa))}</p>
-        </body></html>
-      `;
-    }
-
-    function averagePercentFromRow(row) {
-      let tot = 0; let c = 0;
-      SUBJECTS.forEach(s => {
-        const p = Number(row[s]);
-        if (!isNaN(p)) { tot += p; c++; }
-      });
-      return c ? tot / c : 0;
-    }
-
-    function computeTotalFromRow(row) {
-      let tot = 0;
-      SUBJECTS.forEach(s => {
-        tot += Number(row[s]) || 0;
-      });
-      return tot;
-    }
-
-    // Form submission
-    resultForm.addEventListener('submit', async (ev) => {
-      ev.preventDefault();
-      const formData = new FormData(resultForm);
-      const payload = {};
-      for (let [k,v] of formData.entries()) payload[k] = v;
-      SUBJECTS.forEach(s => {
-        payload[s] = Number(payload[s] || 0);
-      });
-      payload.Total = computeTotalFromRow(payload);
-      const avgPercent = averagePercentFromRow(payload);
-      payload.Grade = percentToGrade(avgPercent).grade;
-      payload.Point = calculateGPAFromRow(payload);
-      payload.Merit = meritFromGPA(payload.Point);
-      payload.Timestamp = new Date().toISOString();
-
-      if (editingId) {
-        payload.action = 'update';
-        payload.ID = editingId;
-      } else {
-        payload.action = 'add';
-      }
-
-      const res = await fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify(payload),
-        headers: { 'Content-Type': 'application/json' }
-      });
-      const j = await res.json();
-      if (j.success) {
-        closeModal();
-        await renderTable(document.getElementById('search').value);
-      } else {
-        alert('Save failed');
-      }
-    });
-
-    // Search field logic: live search by roll, cross icon to clear
-    const searchInput = document.getElementById('search');
-    const clearBtn = document.getElementById('clearSearch');
-    searchInput.addEventListener('input', (e) => {
-      const q = e.target.value.trim();
-      clearBtn.style.display = q ? 'block' : 'none';
-      renderTable(q);
-    });
-    clearBtn.addEventListener('click', () => { searchInput.value = ''; clearBtn.style.display='none'; renderTable(''); });
-
-    // initial load
-    (async () => { await renderTable(''); })();
-
-  </script>
+/* ---------- Init ---------- */
+async function init() {
+  await fetchAll();
+}
+init();
+</script>
 </body>
 </html>
